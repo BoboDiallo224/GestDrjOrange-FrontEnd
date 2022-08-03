@@ -1,0 +1,5 @@
+@import "~@ng-select/ng-select/themes/default.theme.css";
+
+.my-pagination /deep/ .ngx-pagination .current {
+  background-color: #f96332 !important;
+}

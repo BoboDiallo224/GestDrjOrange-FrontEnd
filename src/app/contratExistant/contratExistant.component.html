@@ -1,0 +1,2330 @@
+<div class="main-content mt-5 pt-5">
+
+  <!--....................................................ADMIN........................................................-->
+  <div *ngIf="role === 'ROLE_ADMIN'">
+
+    <!--................................Menu de navigation.....................................-->
+    <nav class="navbar navbar-expand-lg bg-dark">
+      <!-- Collapse button -->
+
+      <!-- Collapsible content -->
+      <div class="collapse navbar-collapse" id="basicExampleNav">
+
+        <!-- Links -->
+        <ul class="navbar-nav mr-auto">
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedOne}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('enCours')">Contrats En Cours</a>
+          </li>
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedTwo}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('expirer')">Contrats Expirés</a>
+          </li>
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedThree}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('resilier')">Contrats Résiliés</a>
+          </li>
+
+        </ul>
+        <!-- Links -->
+      </div>
+      <!-- Collapsible content -->
+    </nav>
+    <!--................................ FERMETURE Menu de navigation.....................................-->
+
+
+    <div class="card" *ngIf="displayOption === 'enCours'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats En Cours</h4>
+      </div>
+
+      <div class="card-body">
+
+        <form  #f="ngForm" (ngSubmit)="searchListDemandeEnCours(f.value)" class="form-inline">
+
+          <label for="researchLate" type="text" class="text-primary font-weight-bold text-center">Direction</label>
+          <input ngModel name="direction" class="input-group-sm form-control" required
+                 id="researchLate" placeholder="Direction" style="color: #d35400">
+
+
+          <div class="mt-2">
+            <!-- <label class="text-primary font-weight-bold">Selectionner un Type Contrat</label>-->
+            <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                    (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+              <option value="tous" selected>Tous</option>
+              <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+                {{typeContrat.libelle}}
+              </option>
+            </select>
+
+            <button class="btn btn-primary ml-2" type="submit">
+              <i class="fa fa-search"></i> Rechecher
+            </button>
+
+          </div>
+
+
+        </form>
+
+        <div *ngIf="listDemandeEnCours.length === 0">
+          <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeEnCours.length !== 0">
+
+          <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+            <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+            Export
+          </button>
+
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date D'expiration
+            </th>
+
+            <th>
+              Délais De Traitement
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeEnCours | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+                {{days_between(d.datePrisEnchargeDemande, d.dateUploadFirstContrat)}} Jours
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+                <button *ngIf="d.confirmRenewalStatus" type="button" rel="tooltip" title="Résilier le contrat" class="btn btn-danger btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); openModalConfim(confimContratResilier)">
+                  <i class="fa fa-power-off"></i>
+                </button>
+
+                <!--<button type="button" rel="tooltip" title="Résilier le contrat" class="btn btn-danger btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); openModalConfim(confimContratResilier)">
+                  <i class="fa fa-power-off"></i>
+                </button>-->
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="card" *ngIf="displayOption === 'expirer'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats Expirés</h4>
+      </div>
+
+      <div class="card-body">
+
+        <div *ngIf="listDemandeExpirer.length === 0">
+          <h3 class="title text-center text-primary">Aucune demande résiliée</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeExpirer.length !== 0">
+
+          <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+            <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+            Export
+          </button>
+
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date d'expiration
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeExpirer | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+               <!-- <button type="button" rel="tooltip" title="Renouveller le contrat" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(renouvellementContrat)">
+                  <i class="fa fa-book"></i>
+                </button>-->
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="card" *ngIf="displayOption === 'resilier'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats Résiliés</h4>
+      </div>
+
+      <div class="card-body">
+
+        <div *ngIf="listDemandeResilier.length === 0">
+          <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeResilier.length !== 0">
+
+          <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+            <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+            Export
+          </button>
+
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date D'expiration
+            </th>
+
+            <th>
+              Date Résiliation
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeResilier | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateResiliationContrat | date}}
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+  <!--....................................................ADMIN........................................................-->
+
+
+  <!--....................................................GESTIONNAIRE........................................................-->
+  <div *ngIf="role === 'ROLE_GESTIONNAIRE'">
+
+    <!--................................Menu de navigation.....................................-->
+    <nav class="navbar navbar-expand-lg bg-dark">
+      <!-- Collapse button -->
+
+      <!-- Collapsible content -->
+      <div class="collapse navbar-collapse" id="basicExampleNav22">
+
+        <!-- Links -->
+        <ul class="navbar-nav mr-auto">
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedOne}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('enCours')">Contrats En Cours</a>
+          </li>
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedTwo}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('expirer')">Contrats Expirés</a>
+          </li>
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedThree}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('resilier')">Contrats Résiliés</a>
+          </li>
+
+        </ul>
+        <!-- Links -->
+      </div>
+      <!-- Collapsible content -->
+    </nav>
+    <!--................................ FERMETURE Menu de navigation.....................................-->
+
+
+    <div class="card" *ngIf="displayOption === 'enCours'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats En Cours</h4>
+      </div>
+
+      <div class="card-body">
+
+        <form  #f="ngForm" (ngSubmit)="searchListDemandeEnCours(f.value)" class="form-inline">
+
+          <label for="researchLate22" type="text" class="text-primary font-weight-bold text-center">Direction</label>
+          <input ngModel name="direction" class="input-group-sm form-control" required
+                 id="researchLate22" placeholder="Direction" style="color: #d35400">
+
+
+          <div class="mt-2">
+            <!-- <label class="text-primary font-weight-bold">Selectionner un Type Contrat</label>-->
+
+            <!--<select class="form-control bg-dark text-white h6 mdb-select md-form"
+                    (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+              <option value="tous" selected>Tous</option>
+              <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+                {{typeContrat.libelle}}
+              </option>
+            </select>-->
+
+            <button class="btn btn-primary ml-2" type="submit">
+              <i class="fa fa-search"></i> Rechecher
+            </button>
+
+          </div>
+
+
+        </form>
+
+        <div *ngIf="listDemandeEnCours.length === 0">
+          <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeEnCours.length !== 0">
+
+          <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+            <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+            Export
+          </button>
+
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date D'expiration
+            </th>
+
+            <th>
+              Délais De Traitement
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeEnCours | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+                {{days_between(d.datePrisEnchargeDemande, d.dateUploadFirstContrat)}} Jours
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+                <button *ngIf="d.confirmRenewalStatus" type="button" rel="tooltip" title="Résilier le contrat" class="btn btn-danger btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); openModalConfim(confimContratResilier)">
+                  <i class="fa fa-power-off"></i>
+                </button>
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="card" *ngIf="displayOption === 'expirer'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats Expirés</h4>
+      </div>
+
+      <div class="card-body">
+
+        <div *ngIf="listDemandeExpirer.length === 0">
+          <h3 class="title text-center text-primary">Aucune demande résiliée</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeExpirer.length !== 0">
+
+          <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+            <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+            Export
+          </button>
+
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date d'expiration
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeExpirer | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+               <!-- <button type="button" rel="tooltip" title="Renouveller le contrat" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(renouvellementContrat)">
+                  <i class="fa fa-book"></i>
+                </button>-->
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="card" *ngIf="displayOption === 'resilier'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats Résiliés</h4>
+      </div>
+
+      <div class="card-body">
+
+        <div *ngIf="listDemandeResilier.length === 0">
+          <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeResilier.length !== 0">
+
+          <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+            <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+            Export
+          </button>
+
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date D'expiration
+            </th>
+
+            <th>
+              Date Résiliation
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeResilier | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateResiliationContrat | date}}
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!--................................................Modal Upload Contrat Signer .........................................-->
+    <ng-template #renouvellementContrat>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+      <div class="modal-header"><!--pull-left-->
+        <h4 class="modal-title justify-content-center">Renouvelement contrat</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <form #f="ngForm" (ngSubmit)="renouvelementContrat(f.valueOf())">
+          <div class="row">
+            <div class="col-6">
+              <h6>
+                Date Entrée en vigueur:<strong style="color: #d35400"> {{demandes.dateEntreeEnVigueur | date}}</strong>
+              </h6>
+            </div>
+
+            <div class="col-6">
+              <h6>
+                Date Expiration:<strong style="color: #d35400"> {{demandes.dateFinContrat | date}}</strong>
+              </h6>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="form-group text-center col-md-6">
+              <label for="dateFinContrat" type="text" class="text-primary font-weight-bold">Nouvelle date d'expiration</label>
+              <input ngModel name="dateFinContrat" class="form-control text-center" required
+                     id="dateFinContrat" placeholder="Nouvelle date d'expiration" style="color: #d35400" type="date">
+            </div>
+            <div class="col-md-3"></div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <button type="submit" class="btn btn-primary btn-block" [disabled]="!f.valid" >Valider</button>
+            </div>
+
+            <div class="col-md-6">
+              <button type="button" class="btn btn-secondary btn-block" (click)="modalRef.hide()">Annuler</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="row">
+
+          <div>
+            <h6 class="title align-content-center">Historiques des renouvellements</h6>
+          </div>
+
+          <div class="table-responsive table-striped" *ngIf="listHistorique.length !== 0">
+
+            <table class="table">
+              <thead class="text-primary text-center">
+
+              <th>
+                Date Renouvelement
+              </th>
+
+              <th>
+                Date Entree en Vigeur
+              </th>
+
+              <th>
+                Date Fin Contrat
+              </th>
+
+              </thead>
+
+              <tbody class="text-center">
+              <tr *ngFor="let d of listHistorique | paginate: { itemsPerPage: 5, currentPage: p }">
+
+                <td  class="text-center">
+                  {{d.dateRenouvellement | date}}
+                </td>
+
+                <td  class="text-center">
+                  {{d.dateFinContrat | date}}
+                </td>
+
+                <td class="text-center">
+                  {{d.dateEntreeEnVigueur | date}}
+                </td>
+
+              </tr>
+              </tbody>
+
+              <tr class="text-center">
+                <td colspan= 12>
+                  <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+                </td>
+              </tr>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+    </ng-template>
+    <!--................................................FERMETURE Modal Upload Contrat Signer .........................................-->
+
+
+    <!--...................................Confirm Dialog.....................................................................-->
+
+    <!--<ng-template #confimContratResilier>
+      <div class="modal-body text-center">
+        <p class="title">Voulez vous confirmer la résiliation du contrat?</p>
+        <button type="button" class="btn btn-default" (click)="resilierContrat()" >Yes</button>
+        <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >No</button>
+      </div>
+
+    </ng-template>-->
+
+    <!--.............................Confirm Dialog.....................................................................-->
+
+  </div>
+  <!--....................................................GESTIONNAIRE........................................................-->
+
+  <!--....................................................DEMANDEUR........................................................-->
+  <div *ngIf="role === 'ROLE_DEMANDEUR'">
+
+    <!--................................Menu de navigation.....................................-->
+    <nav class="navbar navbar-expand-lg bg-dark">
+      <!-- Collapse button -->
+
+      <!-- Collapsible content -->
+      <div class="collapse navbar-collapse" id="basicExampleNav2">
+
+        <!-- Links -->
+        <ul class="navbar-nav mr-auto">
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedOne}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('enCours')">Contrats En Cours
+              <!--<span class="sr-only">(current)</span>-->
+            </a>
+          </li>
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedTwo}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('expirer')">Contrats Expirés</a>
+          </li>
+
+          <li [ngClass]="{'nav-item':true, 'active':isactivatedThree}">
+            <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('resilier')">Contrats Résiliés</a>
+          </li>
+
+        </ul>
+        <!-- Links -->
+      </div>
+      <!-- Collapsible content -->
+    </nav>
+    <!--................................ FERMETURE Menu de navigation.....................................-->
+
+
+    <div class="card" *ngIf="displayOption === 'enCours'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats En Cours</h4>
+      </div>
+
+      <div class="card-body">
+
+        <form  #f="ngForm" (ngSubmit)="searchListDemandeEnCours(f.value)" class="form-inline">
+
+          <label for="researchLate2" type="text" class="text-primary font-weight-bold text-center">Direction</label>
+          <input ngModel name="direction" class="input-group-sm form-control" required
+                 id="researchLate2" placeholder="Direction" style="color: #d35400">
+
+
+          <div class="mt-2">
+            <!-- <label class="text-primary font-weight-bold">Selectionner un Type Contrat</label>-->
+            <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                    (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+              <option value="tous" selected>Tous</option>
+              <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+                {{typeContrat.libelle}}
+              </option>
+            </select>
+
+            <button class="btn btn-primary ml-2" type="submit">
+              <i class="fa fa-search"></i> Rechecher
+            </button>
+
+          </div>
+
+
+        </form>
+
+        <div *ngIf="listDemandeEnCours.length === 0">
+          <h3 class="title text-center text-primary">Aucun contrat en cours</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeEnCours.length !== 0">
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date D'expiration
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeEnCours | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Renouveller le contrat" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(renouvellementContrat)">
+                  <!--<i class="fa fa-book"></i>-->
+                  <i class="fa fa-retweet"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Résilier le contrat" class="btn btn-danger btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); openModalConfim(DemanderenouvellementContrat)"><!--confimContratResilier-->
+                  <i class="fa fa-power-off"></i>
+                </button>
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="card" *ngIf="displayOption === 'expirer'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats Expirés</h4>
+      </div>
+
+      <div class="card-body">
+
+        <div *ngIf="listDemandeExpirer.length === 0">
+          <h3 class="title text-center text-primary">Aucun contrat expiré</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeExpirer.length !== 0">
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date d'expiration
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeExpirer | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d);  onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Renouveller le contrat" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(renouvellementContrat)">
+                  <!--<i class="fa fa-book"></i>-->
+                  <i class="fa fa-retweet"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Résilier le contrat" class="btn btn-danger btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); openModalConfim(confimContratResilier)">
+                  <i class="fa fa-power-off"></i>
+                </button>
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="card" *ngIf="displayOption === 'resilier'">
+
+      <div class="card-header">
+        <h4 class="card-title title text-center">List des Contrats Résiliés</h4>
+      </div>
+
+      <div class="card-body">
+
+        <div *ngIf="listDemandeResilier.length === 0">
+          <h3 class="title text-center text-primary">Aucun contrat resilié</h3>
+        </div>
+
+        <div class="table-responsive table-striped" *ngIf="listDemandeResilier.length !== 0">
+          <table class="table">
+            <thead class="text-primary text-center">
+
+            <th>
+              Division
+            </th>
+
+            <th>
+              Type Contrat
+            </th>
+
+            <th>
+              Raison Social
+            </th>
+
+            <th>
+              Objet Contrat
+            </th>
+
+            <th>
+              Entrée En Vigueur
+            </th>
+
+            <th>
+              Date D'expiration
+            </th>
+
+            <th>
+              Date Résiliation
+            </th>
+
+            <th>
+              Options
+            </th>
+
+            </thead>
+
+            <tbody class="text-center">
+            <tr *ngFor="let d of listDemandeResilier | paginate: { itemsPerPage: 10, currentPage: p }">
+
+              <td  class="text-center">
+                {{d.user.division.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.typeContrat.libelle}}
+              </td>
+
+              <td class="text-center">
+                {{d.raisonSocial}}
+              </td>
+
+              <td class="text-center">
+                {{d.objetContrat}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateEntreeEnVigueur | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateFinContrat | date}}
+              </td>
+
+              <td class="text-center">
+                {{d.dateResiliationContrat | date}}
+              </td>
+
+              <td class="text-center">
+
+                <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-file"></i>
+                </button>
+
+                <button type="button" rel="tooltip" *ngIf="d.parent != null" title="Historiques Renouvellement" class="btn btn-dark btn-icon btn-sm"
+                        (click)="getDemandeInfos(d); getListHistoriqueRenouvellement(d.id); openModal(historiqueRenouvellement)">
+                  <i class="fa fa-book"></i>
+                </button>
+
+              </td>
+
+            </tr>
+            </tbody>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+  <!--....................................................DEMANDEUR........................................................-->
+
+  <!--............................... detail Demande Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeValider'">
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour == 'enCours'"
+            (click)="displayOption = 'enCours'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'expirer'"
+            (click)="displayOption = 'expirer'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'resilier'"
+            (click)="displayOption = 'resilier'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Date Prise en Charge Demande: <strong style="color: #d35400">{{demandes.datePrisEnchargeDemande | date}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong> et traitée dans <strong style="color: #d35400"> {{days_between(demandes.datePrisEnchargeDemande, demandes.dateUploadFirstContrat)}} Jours</strong>
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Date entrer en vigueur:<strong style="color: #d35400"> {{demandes.dateEntreeEnVigueur | date}}</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Date Fin Contrat:<strong style="color: #d35400"> {{demandes.dateFinContrat | date}}</strong>
+          </h6>
+        </div>
+      </div>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+      <div>
+
+        <!--openModal(ficheValidation)-->
+        <button type="button" class="btn btn-primary" (click)="getCurrentDate(); displayValidationForm()">Afficher La Fiche de Validation</button>
+
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Utilasateurs Validateurs</h5>
+        </div>
+
+        <div class="table-responsive table-striped table-bordered" *ngIf="listProcess.length !== 0">
+          <table class="table">
+            <thead class="text-primary text-center">
+            <th>
+              Division
+            </th>
+            <th>
+              Ordre de Validation
+            </th>
+            <th>
+              Etat
+            </th>
+            <!--<th>
+              Options
+            </th>-->
+            </thead>
+
+            <tbody class="text-center">
+
+            <tr *ngFor="let p of listProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+              <td>
+                {{p.division}}
+              </td>
+
+              <td class="text-center">
+                {{p.ordreValidation}}
+              </td>
+
+              <td *ngIf="p.statutValidation == false" class="text-danger">
+                Non Valider
+              </td>
+
+              <td *ngIf="p.statutValidation == true">
+                Validé
+              </td>
+              <!--<td class="text-center">
+                <button type="button" rel="tooltip" title="Ajouter une division" class="btn btn-info btn-icon btn-sm"
+                        (click)="isBeginProcess = true">
+                  <i class="fa fa-plus"></i> &lt;!&ndash;fa-file&ndash;&gt;
+                </button>
+
+                <button type="button" rel="tooltip" title="Retirer une division" class="btn btn-danger btn-icon btn-sm"
+                        (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(u); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-remove"></i> &lt;!&ndash;fa-file&ndash;&gt;
+                </button>
+              </td>-->
+            </tr>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!--...................................Fiche de Validation Dialog.....................................................................-->
+
+      <!--<ng-template #ficheValidation>
+
+        <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+        <div class="modal-header">
+          <h4 class="modal-title text-center">Fiche de Validation</h4>
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-block" title="Exporter" (click)="pdfDeclaration('fiche validation','fiche',15,10,220)" >
+          <i class="fa fa-file-pdf"></i>
+        </button>
+
+        <div  #content class="modal-body">
+
+          <h5 class="title text-center">ORANGE GUINEE SA</h5>
+
+          <div class="row">
+
+            <div class="col-md-12">
+              <h6>
+                DIRECTION DE LA REGLEMENTATION ET DES AFFAIRES JURIDIQUES
+              </h6>
+
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <h6>
+                CONTRAT DE {{demandes.typeContrat.libelle}} A USAGE PROFESSIONEL N°{{demandes.id}}/DRJ-{{myDate | date:'MM-yyyy'}}
+              </h6>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <h6>
+                COCONTRACTANT: {{demandes.raisonSocial}}
+              </h6>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <h6>SOUSCRIT-LE:</h6>&lt;!&ndash;{{demandes.dateSouscription | date:'dd/MM/yyyy'}}&ndash;&gt;
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+            <h6>NOTIFIE-LE:</h6>
+            &lt;!&ndash;{{demandes.dateEntreeEnVigueur | date}}&ndash;&gt;
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <h6>OBJET:</h6>
+              Le présent contrat a pour objet {{demandes.objetContrat}}<br>
+            </div>
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-12">
+            <h6>Durée:</h6>Le présent contrat qui prend effet à compter de sa date de signature, est conclu pour une durée de {{demandes.duration}} mois, renouvelable par tacite reconduction sauf dénonciation par l’une des parties par lettre simple avec accusé de réception trois (3) mois avant l’échéance du terme. <br>
+            </div>
+
+            </div>
+
+          <div class="row">
+
+            <div class="col-md-8">
+              <h6>MODALITES FINANCIERES:</h6>Le présent contrat est consenti {{demandes.monthlyAmountPrestation}} GNF.
+            </div>
+
+            <div class="col-md-4" *ngIf="ifModif">
+              <button class="btn-primary" title="Modifier" (click)="ifInput = true; ifModif= false"><i class="fa fa-pencil"></i></button>
+            </div>
+
+          </div>
+
+          <div class="row" *ngIf="ifInput">
+
+            <div class="col-md-8">
+              <input [(ngModel)]="demandes.monthlyAmountPrestation" name="monthlyAmountPrestation" type="text" placeholder="MODALITES FINANCIERES" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+              <button class="btn-primary" title="Valider" (click)="ifInput = false; ifModif= true">
+                <i class="fa fa-check"></i>
+              </button>
+            </div>
+          </div>
+
+          &lt;!&ndash;.......................................Tableau des validateurs...................................................&ndash;&gt;
+          <div >&lt;!&ndash;*ngIf="listDemandePrisEncharge.length !== 0&ndash;&gt;
+
+            <table class="table">
+              <thead class="text-primary text-center">
+              <th>
+                Division
+              </th>
+              <th>
+                Date Validation
+              </th>
+              <th>
+                Commentaire
+              </th>
+              <th>
+                Signature
+              </th>
+              &lt;!&ndash;<th>
+                Options
+              </th>&ndash;&gt;
+              </thead>
+
+              <tbody class="text-center">
+
+              <tr *ngFor="let p of listProcess">&lt;!&ndash;| paginate: { itemsPerPage: 5, currentPage: p }&ndash;&gt;
+
+                <td>
+                  {{p.division}}
+                </td>
+
+                <td class="text-center">
+                  {{p.dateValidation | date}}
+                </td>
+
+                <td class="text-center">
+                  {{p.commentaire}}
+                </td>
+                <td>
+                  <div class="img-wrapper text-center">
+                    <img src="data:image/{{p.demandeProcess.user.typeImageSignature}};base64,{{p.demandeProcess.user.contentImageSignature}}" width="200%" height="80%" class="float-l text-center" alt="...">
+                  </div>
+                </td>
+
+              </tr>
+
+              &lt;!&ndash;<tr class="text-center">
+                <td colspan = 12>
+                  <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant">
+                  </pagination-controls>
+                </td>
+              </tr>&ndash;&gt;
+
+              </tbody>
+
+            </table>
+          </div> &lt;!&ndash;table-responsive table-striped &ndash;&gt;
+          &lt;!&ndash;.......................................Fermeture Tableau des validateurs...................................................&ndash;&gt;
+
+          <div class="row">
+
+            <div class="col-md-6">
+              <h6>Exercice {{myDate | date:'yyyy'}}</h6>
+
+            </div>
+
+            <div class="col-md-6">
+              <h6>Important : ce document  de  travail  est strictement  confidentiel</h6>
+            </div>
+
+          </div>
+          &lt;!&ndash;<p>Voulez vous confirmez?</p>
+          <button type="button" class="btn btn-default" (click)="updateProcessValidation()" >OUI</button>
+          <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >NON</button>&ndash;&gt;
+        </div>
+
+
+      </ng-template>-->
+
+      <!--.............................Fermeture Fiche de Validation Dialog.....................................................................-->
+
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+
+
+      <!--...............................Tableau Liste des Documents de la demande..........................................-->
+      <div class="row">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Documents</h5>
+        </div>
+      </div>
+
+      <div class="table-responsive table-striped table-bordered">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td>
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Valider..........................................-->
+
+
+</div>
+
+<ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+<!--................................................Modal Upload Contrat Signer .........................................-->
+<!--<ng-template #renouvellementContrat>
+
+  <ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+  <div class="modal-header">&lt;!&ndash;pull-left&ndash;&gt;
+    <h4 class="modal-title justify-content-center">Renouvelement contrat</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+
+    <form #f="ngForm" (ngSubmit)="renouvelementContrat(f.valueOf())">
+      <div class="row">
+        <div class="col-6">
+          <h6>
+            Date Entrée en vigueur:<strong style="color: #d35400"> {{demandes.dateEntreeEnVigueur | date}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-6">
+          <h6>
+            Date Expiration:<strong style="color: #d35400"> {{demandes.dateFinContrat | date}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-3"></div>
+        <div class="form-group text-center col-md-6">
+          <label for="dateFinContrat2" type="text" class="text-primary font-weight-bold">Nouvelle date d'expiration</label>
+          <input ngModel name="dateFinContrat" class="form-control text-center" required
+                 id="dateFinContrat2" placeholder="Nouvelle date d'expiration" style="color: #d35400" type="date">
+        </div>
+        <div class="col-md-3"></div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="!f.valid" >Valider</button>
+        </div>
+
+        <div class="col-md-6">
+          <button type="button" class="btn btn-secondary btn-block" (click)="modalRef.hide()">Annuler</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="row">
+
+      <div>
+        <h6 class="title align-content-center">Historiques des renouvellements</h6>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listHistorique.length !== 0">
+
+        <table class="table">
+          <thead class="text-primary text-center">
+
+          <th>
+            Date Renouvelement
+          </th>
+
+          <th>
+            Date Entree en Vigeur
+          </th>
+
+          <th>
+            Date Fin Contrat
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listHistorique | paginate: { itemsPerPage: 5, currentPage: p }">
+
+            <td  class="text-center">
+              {{d.dateRenouvellement | date}}
+            </td>
+
+            <td  class="text-center">
+              {{d.dateFinContrat | date}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateEntreeEnVigueur | date}}
+            </td>
+
+          </tr>
+          </tbody>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+</ng-template>-->
+
+<ng-template #renouvellementContrat>
+
+  <ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+  <div class="modal-header"><!--pull-left-->
+    <h4 class="modal-title justify-content-center">Renouvelement contrat</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+
+    <form #f="ngForm" (ngSubmit)="renouvelementContrat(f.valueOf())">
+
+      <div class="row">
+
+       <!-- <div class="col-sm-12" disabled>
+          <label class="text-primary font-weight-bold ml-1">Selectionner un Type Contrat</label>
+          <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                  (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+            <option value="" disabled selected>Choose your option</option>
+            <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+              {{typeContrat.libelle}}
+            </option>
+          </select>
+
+        </div>-->
+        <div class="col-md-12">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1">Type Contrat</label>
+            <input type="text" class="form-control" [(ngModel)] = "demandes.typeContrat.libelle" name="libelle" disabled>
+          </div>
+        </div>
+
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1">Raison Social</label>
+            <input type="text" class="form-control" [(ngModel)] = "demandes.raisonSocial" required name="raisonSocial" placeholder="Raison Social">
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1">Objet Contrat</label>
+            <input type="text" class="form-control" [(ngModel)] ="demandes.objetContrat" required name="objetContrat" placeholder="Objet Contrat">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1">Durée du contrat en mois</label>
+            <input type="text" class="form-control" [(ngModel)] = "demandes.duration" required name="duration" placeholder="Durée">
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1">Preavis en mois</label>
+            <input type="text" class="form-control" placeholder="Preavis" [(ngModel)] = "demandes.preavis" required name="preavis">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-12">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1" for="textarea">Modalite de Renouvelement</label>
+            <!--<input type="text" class="form-control" placeholder="Modalite de Renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal">-->
+
+            <textarea class="form-control rounded-0" id="textarea" placeholder="Modalite de renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal" rows="10"></textarea>
+
+          </div>
+        </div>
+
+        <!--<div class="col-md-6">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+            <input type="number" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation" placeholder="">
+          </div>
+        </div>-->
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+            <input type="text" placeholder="Montant Mensuel de la prestation" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation">
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col-1">
+
+          <label style="font-size: 25px; cursor: pointer" class="text-primary text_bold" title="Ajouter un Document" for="contentImage">
+            <i class="fa fa-file-pdf"></i>
+          </label>
+          <input hidden type="file" accept=".pdf" id="contentImage" class="form-control"
+                 (change)="onSelectFileOut($event)" name="contentImage"/><!--[(ngModel)]="cheques.contentImage"-->
+
+        </div>
+
+        <div class="col-3 card bg-dark text-white text-center mr-2" *ngFor="let i of selectedFiles">
+
+          {{i.name}}
+
+          <button (click)="removeFileItem(i)" class=" btn-sm close text-danger">X</button>
+
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <button class="btn btn-primary btn-block"[disabled]="!f.valid">Envoyer la demande</button>
+        </div>
+      </div>
+
+    </form>
+
+    <!--...................................................Historiques des demandes renouveller ...........................................-->
+   <!-- <div class="row">
+
+      <div>
+        <h6 class="title align-content-center">Historiques des renouvellements</h6>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listHistorique.length !== 0">
+
+        <table class="table">
+          <thead class="text-primary text-center">
+
+          <th>
+            Raison Social
+          </th>
+
+          <th>
+            Objet Contrat
+          </th>
+
+          <th>
+            Préavis
+          </th>
+
+          <th>
+            Montant Prestation
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listHistorique | paginate: { itemsPerPage: 5, currentPage: p }">
+
+            <td  class="text-center">
+              {{d.dateRenouvellement | date}}
+            </td>
+
+            <td  class="text-center">
+              {{d.dateFinContrat | date}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateEntreeEnVigueur | date}}
+            </td>
+
+          </tr>
+          </tbody>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+        </table>
+
+      </div>
+
+    </div>-->
+    <!--.........................Historiques des demandes renouveller .....................................................................-->
+
+  </div>
+</ng-template>
+
+<!--................................................FERMETURE Modal Upload Contrat Signer .........................................-->
+
+
+<ng-template #historiqueRenouvellement>
+
+  <ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+  <div class="modal-header"><!--pull-left-->
+    <h4 class="modal-title justify-content-center">Historiques des Renouvellements</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+
+
+    <!--...................................................Historiques des demandes renouveller ...........................................-->
+     <div class="row">
+
+      <!-- <div>
+         <h6 class="title align-content-center">Historiques des renouvellements</h6>
+       </div>-->
+
+       <div class="table-responsive table-striped" *ngIf="listHistorique.length !== 0">
+
+         <table class="table">
+           <thead class="text-primary text-center">
+
+           <th>
+             Division
+           </th>
+
+           <th>
+             Type Contrat
+           </th>
+
+           <th>
+             Raison Social
+           </th>
+
+           <th>
+             Objet Contrat
+           </th>
+
+           <th>
+             Entrée En Vigueur
+           </th>
+
+           <th>
+             Date D'expiration
+           </th>
+
+           <th>
+             Options
+           </th>
+
+           </thead>
+
+           <tbody class="text-center">
+           <tr *ngFor="let d of listHistorique | paginate: { itemsPerPage: 5, currentPage: p }">
+
+             <td  class="text-center">
+               {{d.user.division.libelle}}
+             </td>
+
+             <td class="text-center">
+               {{d.typeContrat.libelle}}
+             </td>
+
+             <td class="text-center">
+               {{d.raisonSocial}}
+             </td>
+
+             <td class="text-center">
+               {{d.objetContrat}}
+             </td>
+
+             <td class="text-center">
+               {{d.dateEntreeEnVigueur | date}}
+             </td>
+
+             <td class="text-center">
+               {{d.dateFinContrat | date}}
+             </td>
+
+             <td class="text-center">
+
+               <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                       (click)="getContratByDemande(d.id);  onChangeOption('detailDemandeValider')">
+                 <i class="fa fa-eye"></i>
+               </button>
+
+               <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                       (click)="getDemandeInfos(d);  onChangeOption('detailDemandeValider'); modalRef.hide()">
+                 <i class="fa fa-file"></i>
+               </button>
+
+             </td>
+
+           </tr>
+           </tbody>
+
+           <tr class="text-center">
+             <td colspan= 12>
+               <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+             </td>
+           </tr>
+
+         </table>
+
+       </div>
+
+     </div>
+    <!--.........................Historiques des demandes renouveller .....................................................................-->
+
+  </div>
+</ng-template>
+
+
+<!--...................................Confirm Dialog.....................................................................-->
+<ng-template #confimContratResilier>
+
+  <div class="modal-header"><!--pull-left-->
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body text-center">
+    <p class="title">Voulez vous confirmer la résiliation du contrat?</p>
+    <button type="button" class="btn btn-default" (click)="resilierContrat()" >Yes</button>
+    <button type="button" class="btn btn-primary" (click)="rejectResiliationContrat()" >No</button>
+  </div>
+
+</ng-template>
+
+<ng-template #DemanderenouvellementContrat>
+  <div class="modal-body text-center">
+    <p class="title">Voulez vous envoyer une demande de résiliation?</p>
+    <button type="button" class="btn btn-default" (click)="demandeResiliation()" >Yes</button>
+    <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >No</button>
+  </div>
+
+</ng-template>
+<!--.............................Confirm Dialog.....................................................................-->
+
+

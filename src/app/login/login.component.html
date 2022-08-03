@@ -1,0 +1,87 @@
+
+<div class="main-content mt-5 pt-5"><!--main-content mt-5 pt-3-->
+
+ <!-- <div class="col-md-6 bg-dark" style="min-height: 100%">
+    <img src="./assets/img/bg5.jpg">
+
+  </div>-->
+
+    <div class="full-page mb-3" filter-color="black" data-image="./assets/img/bg5.jpg">
+      <!--   you can change the color of the filter page using: data-color="blue | purple | green | orange | red | rose " -->
+      <div class="content">
+        <div class="container">
+          <div class="col-lg-4 col-md-6 ml-auto mr-auto"><!--col-lg-4 col-md-6 ml-auto mr-auto-->
+
+            <form class="form">
+              <div class="card card-login">
+                <div class="card-header ">
+                  <div class="card-header ">
+                    <h3 class="header text-center">Login</h3>
+                  </div>
+                </div>
+                <div class="card-body ">
+
+                  <div  [class.alert-validate]="loginErrors.username"  class="wrap-input100 input-group validate-input" [attr.data-validate]="usernameErrorHint"><!--[ngClass]="{'input-group-focus':focus==true}"-->
+                    <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="nc-icon nc-single-02"></i>
+                    </span>
+                    </div>
+                    <input [class.has-val]="!!loginInfo.username" (focus)="loginErrors.username = false" [(ngModel)]="loginInfo.username"
+                           type="text" class="form-control" placeholder="Login Windows..."  name="username">
+                  </div>
+
+                  <div [class.alert-validate]="loginErrors.password" class="input-group wrap-input100 validate-input" data-validate="Password is required"
+                       ><!--[ngClass]="{'input-group-focus':focus1===true}"-->
+                    <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="nc-icon nc-key-25"></i>
+                    </span>
+                    </div>
+                    <input [class.has-val]="!!loginInfo.password" (focus)="loginErrors.password = false" [(ngModel)]="loginInfo.password"
+                           name="password" type="password" placeholder="Password" class="form-control">
+                  </div>
+
+                  <br/>
+
+                  <!--<div class="flex-sb-m w-full p-t-3 p-b-32">
+                      <div class="contact100-form-checkbox">
+                          <input [(ngModel)]="loginInfo.rememberMe" class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+                          <label class="label-checkbox100" for="ckb1">
+                              Remember me
+                          </label>
+                      </div>
+                  </div>-->
+
+                  <div class="text-center" *ngIf="loginErrors.password == true">
+                    <p class="text-danger"> Login ou Mot de passe incorrecte <br> Veuillez saisir vôtre mot de passe Windows</p></div>
+
+                  <div class="card-footer ">
+                    <button (click)="login()" class="btn btn-primary btn-round btn-block mb-3">Se connecter</button>
+                  </div>
+
+                </div>
+
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- <footer class="footer footer-black  footer-white ">
+         <div class="container">
+           <div class="row">
+
+             <div class="credits ml-auto">
+               <span class="copyright">
+                 &copy; {{test | date: 'yyyy'}}, made by orange <i class="fa fa-heart heart"></i> by DevOps
+               </span>
+             </div>
+           </div>
+         </div>
+       </footer>-->
+    </div>
+
+
+
+</div>

@@ -1,0 +1,130 @@
+<div class=""><!--panel-header panel-header-sm-->
+</div>
+
+<div class="main-content mt-5 pt-5">
+
+  <div class="row">
+
+    <div class="col-md-12">
+      <ngx-loading [show]="loading" [config]="{
+       backdropBorderRadius: '3px' }"></ngx-loading>
+      <div class="card">
+        <div class="card-header">
+          <h5 class="title text-center">Complementation de Document</h5>
+        </div>
+        <div class="card-body">
+          <form #f="ngForm" (ngSubmit)="updateDemande()">
+
+            <div class="row">
+
+              <div class="col-sm-12">
+                <label class="text-primary font-weight-bold ml-1">Type Contrat</label>
+                <select class="form-control bg-dark text-white h6 mdb-select md-form">
+                  <option>
+                    {{typeContrat.libelle}}
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Raison Social</label>
+                  <input type="text" class="form-control input-lg" [(ngModel)] = "demandes.raisonSocial" required name="raisonSocial" placeholder="Raison Social">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Objet Contrat</label>
+                  <input type="text" class="form-control" [(ngModel)] ="demandes.objetContrat" required name="objetContrat" placeholder="Objet Contrat">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Durée</label>
+                  <input type="number" class="form-control" [(ngModel)] = "demandes.duration" required name="duration" placeholder="Durée">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Preavis</label>
+                  <input type="text" class="form-control" placeholder="Preavis" [(ngModel)] = "demandes.preavis" required name="preavis">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Modalite de Renouvelement</label>
+                  <input type="text" class="form-control" placeholder="Modalite de Renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+                  <input type="number" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation" placeholder="">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+
+              <div class="col-1">
+
+                <label style="font-size: 35px; cursor: pointer" title="Ajouter un Document" for="contentImage">
+                  <i class="fa fa-file-pdf"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImage" class="form-control"
+                       (change)="onSelectFileOut($event)" name="contentImage"/><!--[(ngModel)]="cheques.contentImage"-->
+
+              </div>
+
+              <div class="col-3 card bg-dark text-white text-center mr-2" *ngFor="let i of listDocument">
+
+                {{i.name}}
+
+                <button (click)="removeDocsItemFromDatabase(i.id)" type="button" class=" btn-sm close text-danger">X</button>
+
+              </div>
+
+              <div class="col-3 card bg-dark text-white text-center mr-2" *ngFor="let i of selectedFiles">
+
+                {{i.name}}
+
+                <button (click)="removeFileItem(i)" class=" btn-sm close text-danger">X</button>
+
+              </div>
+
+            </div>
+
+            <div class="row">
+              <div class="col-12">
+              <button class="btn btn-primary btn-block" [disabled]="!f.valid || listDocument.length === 0 && selectedFiles.length === 0">Valider les Modifications</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+</div>

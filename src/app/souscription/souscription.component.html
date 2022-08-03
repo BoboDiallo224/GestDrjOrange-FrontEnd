@@ -1,0 +1,138 @@
+<div class=""><!--panel-header panel-header-sm-->
+</div>
+
+<div class="main-content mt-5 pt-5">
+
+  <div class="row">
+
+    <div class="col-md-12">
+      <ngx-loading [show]="loading" [config]="{
+       backdropBorderRadius: '3px' }"></ngx-loading>
+      <div class="card">
+        <div class="card-header">
+          <h5 class="title text-center">Nouvelle Demande</h5>
+        </div>
+        <div class="card-body">
+
+          <form #f="ngForm" (ngSubmit)="addNewDemande()">
+
+            <div class="row">
+
+              <div class="col-sm-12">
+                <label class="text-primary font-weight-bold ml-1">Selectionner un Type Contrat</label>
+                <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                        (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+                  <option value="" disabled selected>Choose your option</option>
+                  <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+                    {{typeContrat.libelle}}
+                  </option>
+                </select>
+
+              </div>
+
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Raison Social</label>
+                  <input type="text" class="form-control" [(ngModel)] = "demandes.raisonSocial" required name="raisonSocial" placeholder="Raison Social">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Objet Contrat</label>
+                  <input type="text" class="form-control" [(ngModel)] ="demandes.objetContrat" required name="objetContrat" placeholder="Objet Contrat">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Durée du contrat en mois</label>
+                  <input type="text" class="form-control" [(ngModel)] = "demandes.duration" required name="duration" placeholder="Durée">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Preavis en mois</label>
+                  <input type="text" class="form-control" placeholder="Preavis" [(ngModel)] = "demandes.preavis" required name="preavis">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1" for="textarea">Modalite de Renouvelement</label>
+                  <!--<input type="text" class="form-control" placeholder="Modalite de Renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal">-->
+
+                  <textarea class="form-control rounded-0" id="textarea" placeholder="Modalite de renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal" rows="10"></textarea>
+
+                </div>
+              </div>
+
+              <!--<div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+                  <input type="number" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation" placeholder="">
+                </div>
+              </div>-->
+
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+                  <input type="text" placeholder="Montant Mensuel de la prestation" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+
+              <div class="col-1">
+
+                <label style="font-size: 25px; cursor: pointer" class="text-primary text_bold" title="Ajouter un Document" for="contentImage">
+                  <i class="fa fa-file-pdf"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImage" class="form-control"
+                       (change)="onSelectFileOut($event)" name="contentImage"/><!--[(ngModel)]="cheques.contentImage"-->
+
+              </div>
+
+              <div class="col-3 card bg-dark text-white text-center mr-2" *ngFor="let i of selectedFiles">
+
+                {{i.name}}
+
+                <button (click)="removeFileItem(i)" class=" btn-sm close text-danger">X</button>
+
+              </div>
+
+            </div>
+
+            <div class="row">
+              <div class="col-12">
+              <button class="btn btn-primary btn-block"[disabled]="!f.valid">Envoyer la demande</button>
+              </div>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+</div>

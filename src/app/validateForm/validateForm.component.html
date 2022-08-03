@@ -1,0 +1,181 @@
+<div class="main-content mt-5 pt-5 card">
+
+  <!--<ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>-->
+
+  <!--....................................Fiche de validation..............................................................-->
+
+    <div class="row">
+      <!--<button type="button" class="btn btn-primary btn-block" title="Exporter" (click)="pdfDeclaration('fiche','content')" >
+        <i class="fa fa-file-pdf"></i>
+      </button>-->
+      <button class="btn btn-primary my-sm-0" (click)="ifModif = false;" title="Exporter" printSectionId="content" ngxPrint [useExistingCss]="true">
+        <i class="fa fa-download"></i>
+      </button>
+    </div>
+
+    <div id="content">
+
+      <h5 class="title text-center">ORANGE GUINEE SA</h5>
+
+      <div class="row">
+
+        <div class="col-md-12">
+          <h6>
+            DIRECTION DE LA REGLEMENTATION ET DES AFFAIRES JURIDIQUES
+          </h6>
+
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h6>
+            CONTRAT DE {{demandes.typeContrat.libelle}} A USAGE PROFESSIONEL N°{{demandes.id}}/DRJ-{{myDate | date:'MM-yyyy'}}
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h6>
+            COCONTRACTANT: {{demandes.raisonSocial}}
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h6>SOUSCRIT-LE:</h6><!--{{demandes.dateSouscription | date:'dd/MM/yyyy'}}-->
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h6>NOTIFIE-LE:</h6>
+          <!--{{demandes.dateEntreeEnVigueur | date}}-->
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h6>OBJET:</h6>
+          Le présent contrat a pour objet {{demandes.objetContrat}}<br>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-12">
+          <h6>Durée:</h6>Le présent contrat qui prend effet à compter de sa date de signature, est conclu pour une durée de {{demandes.duration}} mois, renouvelable par tacite reconduction sauf dénonciation par l’une des parties par lettre simple avec accusé de réception trois (3) mois avant l’échéance du terme. <br>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-8">
+          <h6>MODALITES FINANCIERES:</h6>Le présent contrat est consenti {{demandes.monthlyAmountPrestation}} GNF.
+        </div>
+
+        <div class="col-md-4" *ngIf="ifModif">
+          <button class="btn-primary" title="Modifier" (click)="ifInput = true; ifModif= false"><i class="fa fa-pencil"></i></button>
+        </div>
+
+      </div>
+
+      <div class="row" *ngIf="ifInput">
+
+        <div class="col-md-8">
+          <input [(ngModel)]="demandes.monthlyAmountPrestation" name="monthlyAmountPrestation" type="text" placeholder="MODALITES FINANCIERES" class="form-control">
+        </div>
+
+        <div class="col-md-4">
+          <button class="btn-primary" title="Valider" (click)="ifInput = false; ifModif= true">
+            <i class="fa fa-check"></i>
+          </button>
+        </div>
+      </div>
+
+      <!--.......................................Tableau des validateurs...................................................-->
+      <div><!--*ngIf="listDemandePrisEncharge.length !== 0-->
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Division
+          </th>
+          <th>
+            Date Validation
+          </th>
+          <th>
+            Commentaire
+          </th>
+          <th>
+            Signature
+          </th>
+          <!--<th>
+            Options
+          </th>-->
+          </thead>
+
+          <tbody class="text-center">
+
+          <tr *ngFor="let p of listProcess"><!--| paginate: { itemsPerPage: 5, currentPage: p }-->
+
+            <td>
+              {{p.division}}
+            </td>
+
+            <td class="text-center">
+              {{p.dateValidation | date}}
+            </td>
+
+            <td class="text-center">
+              {{p.commentaire}}
+            </td>
+            <td>
+              <div class="img-wrapper text-center">
+                <img src="data:image/{{p.demandeProcess.user.typeImageSignature}};base64,{{p.demandeProcess.user.contentImageSignature}}"
+                     width="100" height="40" class="float-l text-center" alt="...">
+                <!--<img src="{{convertBase64Image(p.demandeProcess.user.contentImageSignature,p.demandeProcess.user.typeImageSignature) | async}}"
+                     width="200" height="80" class="float-l text-center" alt="...">-->
+              </div>
+            </td>
+
+          </tr>
+
+          <!--<tr class="text-center">
+            <td colspan = 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant">
+              </pagination-controls>
+            </td>
+          </tr>-->
+
+          </tbody>
+
+        </table>
+      </div> <!--table-responsive table-striped -->
+      <!--.......................................Fermeture Tableau des validateurs...................................................-->
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>Exercice {{myDate | date:'yyyy'}}</h6>
+
+        </div>
+
+        <div class="col-md-6">
+          <h6>Important : ce document  de  travail  est strictement  confidentiel</h6>
+        </div>
+
+      </div>
+      <!--<p>Voulez vous confirmez?</p>
+      <button type="button" class="btn btn-default" (click)="updateProcessValidation()" >OUI</button>
+      <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >NON</button>-->
+    </div>
+  <!--....................................Fiche de validation..............................................................-->
+
+</div>
+
+

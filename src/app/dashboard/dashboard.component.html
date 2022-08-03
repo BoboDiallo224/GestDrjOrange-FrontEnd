@@ -1,0 +1,190 @@
+<div class="main-content mt-5 pt-3">
+  <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+  <div class="row">
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="card-title text-center">Statistiques des demandes</h6>
+        </div>
+        <div class="card-body m-2">
+          <h6 class="title text-center">Rechercher entre deux dates</h6>
+
+          <div>
+
+            <form #f="ngForm" (ngSubmit)="statistiquesDemandes(f.value)" class="form-inline">
+
+              <div class="row">
+
+                <div class="col-md-6">
+                  <label for="research"  class="text-primary font-weight-bold text-center">Date début</label>
+                  <input ngModel name="startDate" type="date" class="input-group-sm form-control" required
+                         id="research" placeholder="Date debut" style="color: #d35400">
+                </div>
+
+                <div class="col-md-6">
+
+                  <label for="research2" class="text-primary font-weight-bold text-center">Date fin</label>
+                  <input ngModel name="endDate" type="date" class="input-group-sm form-control" required
+                         id="research2" placeholder="Date fin" style="color: #d35400">
+
+                </div>
+
+              </div>
+
+              <div class="mt-2">
+
+                <!--<label class="text-primary font-weight-bold">Selectionner un Type Contrat</label>-->
+                <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                        (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+                  <option value="" disabled selected>Choose your option</option>
+                  <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+                    {{typeContrat.libelle}}
+                  </option>
+                </select>
+
+                <button class="btn btn-primary ml-2" type="submit">
+                  <i class="fa fa-search"></i> Rechecher
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+          <div class="mt-2 row">
+
+            <div class="col-md-6">
+              <strong><p class="text-center">Traitées</p></strong>
+              <strong><p class="text-center text_bold" style="color: #2CA8FF">{{treatedDemande}}</p></strong>
+            </div>
+
+            <div class="col-md-6">
+              <strong><p class="text-center">Non Traitées</p></strong>
+              <strong><p class="text-center text_bold" style="color: #4acccd">{{notTreatedDemande}}</p></strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+
+        <div class="card-header">
+          <h6 class="card-title text-center">Statistiques des demandes traitées à temps et en retard</h6>
+        </div>
+
+        <div class="card-body m-2">
+
+          <h6 class="title text-center">Rechercher entre deux dates</h6>
+
+          <div>
+
+            <form  #f="ngForm" (ngSubmit)="delayOfTreatedDemande(f.value)" class="form-inline">
+
+
+              <div class="row">
+
+                <div class="col-md-6">
+
+                  <label for="researchLate" class="text-primary font-weight-bold text-center">Date début</label>
+                  <input ngModel name="startDate" type="date" class="input-group-sm form-control" required
+                         id="researchLate" placeholder="Date debut" style="color: #d35400">
+                </div>
+
+                <div class="col-md-6">
+
+                  <label for="researchLate2" class="text-primary font-weight-bold text-center">Date fin</label>
+                  <input ngModel name="endDate" type="date" class="input-group-sm form-control" required
+                         id="researchLate2" placeholder="Date fin" style="color: #d35400">
+
+                </div>
+
+              </div>
+
+
+              <div class="mt-2">
+               <!-- <label class="text-primary font-weight-bold">Selectionner un Type Contrat</label>-->
+                <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                        (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+                  <option value="" disabled selected>Choose your option</option>
+                  <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+                    {{typeContrat.libelle}}
+                  </option>
+                </select>
+
+                <button class="btn btn-primary ml-2" type="submit">
+                  <i class="fa fa-search"></i> Rechecher
+                </button>
+
+              </div>
+
+
+            </form>
+
+          </div>
+
+          <div class="mt-2 row">
+
+            <div class="col-md-4">
+              <strong><p class="text-center">Traitées à temps</p></strong>
+           <strong><p class="text-center" style="color: #f6b93b">{{treatedInTime}}</p></strong>
+          </div>
+
+          <div class="col-md-8">
+            <strong><p class="text-center">Traitées en retard</p></strong>
+            <strong><p class="text-center text_bold" style="color: #82ccdd">{{treatedInLate}}</p></strong>
+          </div>
+
+          </div>
+
+        </div>
+
+
+      </div>
+    </div>
+
+
+
+  </div>
+
+
+  <div class="row">
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Statistiques des demandes</h5>
+        </div>
+        <div class="card-body ">
+
+          <canvas id="myChart2"></canvas>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Statistiques delais de traitement</h5>
+        </div>
+        <div class="card-body ">
+
+            <canvas id="myChart"></canvas>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+</div>

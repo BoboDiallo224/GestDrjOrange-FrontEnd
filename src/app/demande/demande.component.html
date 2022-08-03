@@ -1,0 +1,4159 @@
+
+<!-------------------------------------------------DEBUT PROFIL ADMIN--------------------------------------------------------->
+<ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+<div class="main-content mt-5 pt-5" *ngIf="role === 'ROLE_ADMIN'">
+
+  <!--................................Menu de navigation.....................................-->
+  <nav class="navbar navbar-expand-lg bg-dark" *ngIf="displayOption != 'detailDemandeValider' || displayOption != 'detailDemandeNonValider'">
+    <!-- Collapse button -->
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="basicExampleNav">
+
+      <!-- Links -->
+      <ul class="navbar-nav mr-auto">
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedOne}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('non_valider')">Demandes non prises en Charge
+            <!--<span class="sr-only">(current)</span>-->
+          </a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedTwo}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('valider')">Demandes prises en Charge</a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedThree}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('enCoursDeTraitement')">Demandes en cours de traitement</a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedFour}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('traiter')">Demandes traitées</a>
+        </li>
+
+      </ul>
+      <!-- Links -->
+    </div>
+    <!-- Collapsible content -->
+  </nav>
+  <!--................................ FERMETURE Menu de navigation.....................................-->
+
+  <!--<select class="custom-select" [(ngModel)]="role" >
+    <option value="ROLE_ADMIN">One</option>
+    <option value="ROLE_DEMANDEUR">Two</option>
+  </select>-->
+
+
+  <!--............................... Demandes Non Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'non_valider'">
+
+    <div class="card-header">
+      <h4 class="card-title title text-center"> Liste des Demandes non prises en charge</h4>
+    </div>
+
+    <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+      <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+      Export
+    </button>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeNonPriseEnCharge.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande pour l'instant</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeNonPriseEnCharge.length !== 0">
+
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th> <th>
+           Raison Social
+          </th> <th>
+           Objet Contrat
+          </th>
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let u of listDemandeNonPriseEnCharge | paginate: { itemsPerPage: 5, currentPage: p }">
+            <td class="table-success">
+              {{u.user.name}}
+            </td>
+            <td>
+              {{u.user.email}}
+            </td>
+            <td class="text-center">
+              {{u.user.division.libelle}}
+            </td>
+            <td class="text-center table-warning">
+              {{u.typeContrat.libelle}}
+            </td>
+            <td class="text-center">
+              {{u.raisonSocial}}
+            </td>
+            <td class="text-center">
+              {{u.objetContrat}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="displayOption = 'detailDemandeNonValider'; getDemandeInfos(u)">
+                <i class="fa fa-file"></i> <!--fa-file-->
+              </button>
+            </td>
+          </tr>
+          <tr class="text-center">
+            <td colspan = 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+    </div>
+
+  </div>
+  <!--............................... Demandes Non Valider..........................................-->
+
+
+  <!--............................... Demandes Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'valider'">
+
+    <div class="card-header">
+      <h4 class="card-title title text-center"> Liste des Demandes prises en charge</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandePrisEncharge.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande pour l'instant</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandePrisEncharge.length !== 0">
+
+        <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+          <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+          Export
+        </button>
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+          <!--<th>
+            Nombres de Validations
+          </th>-->
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandePrisEncharge | paginate: { itemsPerPage: 5, currentPage: p }">
+            <td class="table-success">
+              {{d.user.name}}
+            </td>
+            <td>
+              {{d.user.email}}
+            </td>
+            <td class="text-center">
+              {{d.user.division.libelle}}
+            </td>
+            <td class="text-center table-warning">
+              {{d.typeContrat.libelle}}
+            </td>
+            <td class="text-center">
+              {{d.raisonSocial}}
+            </td>
+            <td class="text-center">
+              {{d.objetContrat}}
+            </td>
+
+           <!-- <td class="text-center">
+              {{d.processValidation.length}}
+            </td>-->
+
+            <td class="text-center">
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-dark btn-icon btn-sm"
+                      (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i> <!--fa-file-->
+              </button>
+
+              <div *ngIf="!d.statutHasContrat">
+                <label style="font-size: 25px; cursor: pointer" class="text-primary" title="Uploader la premiere version du contrat" for="contentImage">
+                  <i class="fa fa-file-pdf"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImage" class="form-control" (change)="onSelectFileOut($event,d.id)" name="contentImage"/>
+              </div>
+
+              <div *ngIf="d.statutHasContrat && !d.contratApproved">
+                <label style="font-size: 25px; cursor: pointer" class="text-primary" title="Mettre à jour le contrat uploader" for="contentImageA">
+                  <i class="fa fa-pencil"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImageA" class="form-control" (change)="onSelectFileOut($event,d.id)" name="contentImage"/>
+              </div>
+
+              <div *ngIf="d.statutHasContrat">
+                <button type="button" rel="tooltip" title="Afficher le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id)">
+                  <i class="fa fa-eye"></i> <!--fa-file-->
+                </button>
+              </div>
+
+            </td>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+  <!--......................................... Demandes Valider...........................................................-->
+
+
+  <!--............................... detail Demande Non Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeNonValider'">
+
+    <button class="btn btn-primary" (click)="displayOption = 'non_valider'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+    <div class="row">
+
+      <div class="col-md-6">
+        <h6>
+          Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+        </h6>
+      </div>
+
+      <div class="col-md-6">
+        <h6>
+          Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+        </h6>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h6>
+          Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+        </h6>
+      </div>
+
+      <div class="col-md-6">
+        <h6>
+          Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+        </h6>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h6>
+          Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+        </h6>
+      </div>
+
+      <div class="col-md-6">
+        <h6>
+          Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+        </h6>
+      </div>
+
+    </div>
+
+    <div class="row">
+
+      <div class="col-md-6">
+        <h6>
+          Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+        </h6>
+      </div>
+
+      <div class="col-md-6">
+        <h6>
+          Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+        </h6>
+      </div>
+
+    </div>
+
+    <div class="row">
+
+      <div class="col-md-6">
+        <h6>
+          Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+        </h6>
+      </div>
+
+      <div class="col-md-6">
+        <h6>
+          Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+        </h6>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h6>
+          Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+        </h6>
+      </div>
+      <div class="col-md-6">
+        <h6>
+          Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong>
+        </h6>
+      </div>
+    </div>
+
+    <ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+    <!--...................Bouton Prise en Charge et Demande De Complement..................................-->
+    <div class="row">
+
+      <div class="col-md-12" *ngIf="demandes.statusPrisEnCharge == false || demandes.statusDemandeComplement == false ">
+        <div class="form-group">
+
+          <button class="btn btn-primary" [disabled]="btnShowComplement || demandes.statusDemandeComplement == true " (click)="openModalConfirmation(validationPrisEnCharge)">
+            <i class="fa fa-check" style="font-size: 15px"></i>
+            Valider la prise en Charge
+          </button>
+
+          <button class="btn bg-dark" *ngIf="demandes.statusDemandeComplement == false" (click)="btnShowComplement = true" [disabled]="btnShowComplement">
+            <i class="fa fa-arrow-down" style="font-size: 15px"></i>
+            Envoyer une Demande de Complement de Documents
+          </button>
+        </div>
+      </div>
+
+      <!--.......................Modal Cofirmation Pris en Charge-->
+      <ng-template #validationPrisEnCharge>
+        <div class="modal-body text-center">
+          <h6 class="title">Voulez vous confirmer la Prise en charge?</h6>
+          <button type="button" class="btn btn-default" (click)="prisEnChargeDemande()" >Yes</button>
+          <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >No</button>
+        </div>
+
+      </ng-template>
+
+
+      <!--Affichage du Motif de complement de document-->
+      <div *ngIf="demandes.statusDemandeComplement == true" class="col-md-12 card bg-dark text-primary">
+        <h5 class="text-center"> Demande de Complement de Documents en Cours</h5>
+       <h6 class="title text-center">Motif: {{demandes.remarqueComplement}}</h6>
+      </div>
+      <!--Fermeture affichage du Motif de complement de document-->
+    </div>
+    <!--...................Bouton Prise en Charge et Demande De Complement..................................-->
+
+    <!-- ........................................Send Remarque Complement Document............................................................ -->
+    <div class="row card bg-dark" *ngIf="btnShowComplement">
+
+      <div>
+        <button title="Fermer" (click)="closeCard()">x</button>
+      </div>
+
+      <div class="form-group">
+        <!--<label for="remarqueComplement" class="text-primary font-weight-bold">Vôtre remarque ici</label>-->
+        <textarea  class="form-control z-depth-1 text-primary" id="remarqueComplement" type="text" [(ngModel)] = "demandes.remarqueComplement" name="remarqueComplement" placeholder="Vôtre remarque ici" required
+                  rows="3">
+        </textarea>
+      </div>
+
+      <div>
+          <button class="btn btn-primary" [disabled]="demandes.remarqueComplement == null || demandes.remarqueComplement === ''" (click)="demandeComplement()">
+            <i class="fa fa-check" style="font-size: 15px"></i>
+            Valider la demande de Complément
+          </button>
+      </div>
+
+    </div>
+      <!-- ........................................Close Send Remarque Complement Document............................................................ -->
+
+
+  <!--...............................Tableau Liste des Documents de la demande..........................................-->
+    <div class="row">
+      <div class="col-md-12 title text-center">
+        <h5 class="title">Liste des Documents</h5>
+      </div>
+    </div>
+
+      <div class="table-responsive table-striped">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td class="table-success">
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Non Valider..........................................-->
+
+
+  <!--............................... detail Demande Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeValider'">
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour == 'enCoursDeTraitement'"
+            (click)="displayOption = 'enCoursDeTraitement'; getListDemandORProcess()">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'valider'"
+            (click)="displayOption = 'valider'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'traiter'"
+            (click)="displayOption = 'traiter'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Date Prise en Charge Demande: <strong style="color: #d35400">{{demandes.datePrisEnchargeDemande | date}}</strong>
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong> et traitée dans <strong style="color: #d35400"> {{days_between(demandes.datePrisEnchargeDemande, demandes.dateUploadFirstContrat)}} Jours</strong>
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+           Date entrer en vigueur:<strong style="color: #d35400"> {{demandes.dateEntreeEnVigueur | date}}</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Date Fin Contrat:<strong style="color: #d35400"> {{demandes.dateFinContrat | date}}</strong>
+          </h6>
+        </div>
+      </div>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+      <!--......................................NG SELECT et list des utilisateut-->
+      <button *ngIf="isBeginProcess" [disabled]="!demandes.statutHasContrat || !demandes.contratApproved" class="btn btn-primary mr-2" type="button" title="Ajouter des Divisions pour l'ouverture du circuit de validation" (click)="openModal(ajoutUtilisateur)">
+        <i class="fa fa-plus"></i>
+      </button>
+
+      <ng-template #ajoutUtilisateur>
+
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Ajouter des Divisions pour l'ouverture du circuit de validation</h4>
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+
+            <ng-select [items]="items"
+                       bindLabel="division"
+                       bindValue="name"
+                       [multiple]="true"
+                       placeholder="Select division"
+                       [(ngModel)]="selectedDivisions">
+            </ng-select>
+          <strong><p class="text-primary">
+              Divisions selectionnées: {{selectedDivisions+" "}}
+            </p>
+          </strong>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary btn-block pull-right" type="button" (click)="beginProcess()">
+            <i class="fa fa-check"></i>
+            Valider</button>
+          <button class="btn btn-danger btn-block" type="button" (click)="modalRef.hide()">
+            <i class="fa fa-remove"></i>
+            Fermer</button>
+        </div>
+      </ng-template>
+
+      <!--......................................FERNG SELECT list des utilisateut-->
+
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+    <div *ngIf="isDisplayUser">
+
+      <button type="button" class="btn btn-primary" (click)="getCurrentDate();displayValidationForm()">Afficher La Fiche de Validation</button>
+
+      <div class="col-md-12 title text-center">
+        <h5 class="title">Liste des Utilasateurs Validateurs</h5>
+      </div>
+
+     <!-- <button type="button" rel="tooltip" style="float: right" title="Ajouter une division" class="btn btn-info btn-icon btn-sm"
+              (click)="isBeginProcess = true">
+        <i class="fa fa-plus"></i>
+
+      </button>-->
+      <div class="table-responsive table-striped table-bordered"><!--*ngIf="listDemandePrisEncharge.length !== 0-->
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Division
+          </th>
+          <th>
+            Ordre de Validation
+          </th>
+          <th>
+            Etat
+          </th>
+          <!--<th>
+            Options
+          </th>-->
+          </thead>
+
+          <tbody class="text-center">
+
+            <tr *ngFor="let p of listProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+            <td>
+              {{p.division}}
+            </td>
+
+            <td class="text-center">
+              {{p.ordreValidation}}
+            </td>
+
+            <td *ngIf="p.statutValidation == false" class="text-danger">
+              Non Valider
+            </td>
+
+            <td *ngIf="p.statutValidation == true">
+              Validé
+            </td>
+            <!--<td class="text-center">
+              <button type="button" rel="tooltip" title="Ajouter une division" class="btn btn-info btn-icon btn-sm"
+                      (click)="isBeginProcess = true">
+                <i class="fa fa-plus"></i> &lt;!&ndash;fa-file&ndash;&gt;
+              </button>
+
+              <button type="button" rel="tooltip" title="Retirer une division" class="btn btn-danger btn-icon btn-sm"
+                      (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(u); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-remove"></i> &lt;!&ndash;fa-file&ndash;&gt;
+              </button>
+            </td>-->
+            </tr>
+
+          <tr class="text-center">
+            <td colspan = 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant">
+              </pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+
+      <!--...............................Tableau Liste des Documents de la demande..........................................-->
+      <div class="row">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Documents</h5>
+        </div>
+      </div>
+
+      <div class="table-responsive table-striped table-bordered">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td>
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Valider..........................................-->
+
+
+  <!--............................... Demandes en Cours De Traitement..........................................-->
+  <div class="card" *ngIf="displayOption === 'enCoursDeTraitement'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes en cours de traitement</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeORProcess.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande en traitements</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeORProcess.length !== 0">
+
+        <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+          <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+          Export
+        </button>
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+
+          <!--<th>
+            Niveau Validation
+          </th>-->
+
+         <!-- <th>
+            Validateur
+          </th>
+
+          <th>
+            Ordre de Validation
+          </th>
+
+          <th>
+            Statut
+          </th>-->
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandeORProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.name}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.email}}
+            </td>
+
+            <td  class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.division.libelle}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.typeContrat.libelle}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.raisonSocial}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.objetContrat}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+
+
+              <!--<div *ngIf="!d.data.statutHasContrat && d.data.contratApproved">
+                <label style="font-size: 25px; cursor: pointer" title="Uploader la premiere version du contrat1" for="contentImage2">
+                  <i class="fa fa-file-pdf"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImage2" class="form-control" (change)="onSelectFileOut($event,d.data.id)" name="contentImage"/>
+              </div>-->
+
+              <button *ngIf="d.data.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.data.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfos(d.data); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+
+              <!--&& ifProcessIsEmpty-->
+              <button *ngIf="!d.data.hasSignedContrat && d.ifProcessIsEmpty && d.ifAllUsersHasValidated" type="button" rel="tooltip" title="Uploader la version signée du contrat" class="btn btn-danger btn-icon btn-sm"
+                      (click)="getDemandeInfos(d.data); openModal(uploadContratSigner)">
+                <i class="fa fa-file-pdf"></i>
+              </button>
+
+            </td>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!--................................................Modal Upload Contrat Signer .........................................-->
+  <ng-template #uploadContratSigner>
+
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Uploader la version signée du contrat</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <form #f="ngForm" (ngSubmit)="uploadSignedContrat(f.valueOf())">
+
+        <div class="row">
+
+        <div class="col-6 form-group">
+          <label for="dateEntrerVigueur" type="text" class="text-primary font-weight-bold">Date entrée en vigueur</label>
+          <input ngModel name="dateEntreeEnVigueur" class="form-control" required
+                 id="dateEntrerVigueur" placeholder="Entrer la date d'entrer en vigueur" style="color: #d35400" type="date">
+        </div>
+
+        <div class="col-6 form-group">
+          <label for="dateFinContrat" type="text" class="text-primary font-weight-bold">Date fin du contrat</label>
+          <input ngModel name="dateFinContrat" class="form-control" required
+                 id="dateFinContrat" placeholder="Date fin du contrat" style="color: #d35400" type="date">
+        </div>
+
+        </div>
+
+        <!--Formulaire deja saisie a la souscription-->
+        <div class="row">
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Raison Social</label>
+              <input type="text" class="form-control" [(ngModel)] = "demandes.raisonSocial" required name="raisonSocial" placeholder="Raison Social">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Objet Contrat</label>
+              <input type="text" class="form-control" [(ngModel)] ="demandes.objetContrat" required name="objetContrat" placeholder="Objet Contrat">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Durée du contrat en mois</label>
+              <input type="text" class="form-control" [(ngModel)] = "demandes.duration" required name="duration" placeholder="Durée">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Preavis en mois</label>
+              <input type="text" class="form-control" placeholder="Preavis" [(ngModel)] = "demandes.preavis" required name="preavis">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1" for="textarea">Modalite de Renouvelement</label>
+              <!--<input type="text" class="form-control" placeholder="Modalite de Renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal">-->
+
+              <textarea class="form-control rounded-0" id="textarea" placeholder="Modalite de renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal" rows="10"></textarea>
+
+            </div>
+          </div>
+
+          <!--<div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+              <input type="number" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation" placeholder="">
+            </div>
+          </div>-->
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+              <input type="text" placeholder="Montant Mensuel de la prestation" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation">
+            </div>
+          </div>
+        </div>
+        <!--Formulaire deja saisie a la souscription-->
+
+        <div class="row ml-2">
+
+          <!-- Default checked -->
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" name="isChecked" [(ngModel)] ="isChecked" id="defaultChecked2" checked>
+            <label class="custom-control-label" for="defaultChecked2">Je charge la version du contrat signé par le Co-contractant</label>
+          </div>
+        </div>
+
+        <div class="row ml-1">
+
+        <div class="col-md-3">
+        <label  style="font-size: 25px; cursor: pointer" title="Uploader la version signée du contrat" class="text-primary" for="contentImageUpload">
+          <i class="fa fa-file-pdf"></i>
+        </label>
+          <input hidden type="file" accept=".pdf" id="contentImageUpload" class="form-control" (change)="onSelectFileOut($event,0)" name="contentImage"/>
+        </div>
+
+          <div *ngIf="selectedFiles !== null && selectedFiles.length !== 0" class="col-md-7">
+            <div  class="col-3 card bg-dark text-white text-center mr-2" *ngFor="let s of selectedFiles">
+              {{s.name}}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="!f.valid" >Valider</button>
+          </div>
+
+          <div class="col-md-6">
+            <button type="button" class="btn btn-danger btn-block" (click)="modalRef.hide(); selectedFiles = []">Annuler</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </ng-template>
+  <!--................................................FERMETURE Modal Upload Contrat Signer .........................................-->
+
+
+  <!--............................... Demandes en Cours De Traitement..........................................-->
+
+
+  <!--............................... Demandes Traiter..........................................-->
+
+  <div class="card" *ngIf="displayOption === 'traiter'">
+
+    <div class="card-header">
+      <h4 class="card-title title text-center"> Liste des Demandes traitées</h4>
+    </div>
+
+    <div class="card-body">
+
+
+      <form  #f="ngForm" (ngSubmit)="searchContratByTypeAndDirection(f.value)" class="form-inline">
+
+        <label for="researchLate" type="text" class="text-primary font-weight-bold text-center">Direction</label>
+        <input ngModel name="direction" class="input-group-sm form-control" required
+               id="researchLate" placeholder="Direction" style="color: #d35400">
+
+
+        <div class="mt-2">
+          <!-- <label class="text-primary font-weight-bold">Selectionner un Type Contrat</label>-->
+          <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                  (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+            <option value="" disabled selected>Choose your option</option>
+            <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+              {{typeContrat.libelle}}
+            </option>
+          </select>
+
+          <button class="btn btn-primary ml-2" type="submit">
+            <i class="fa fa-search"></i> Rechecher
+          </button>
+
+        </div>
+
+      </form>
+
+      <div *ngIf="listDemandeTraiter.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeTraiter.length !== 0">
+
+        <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+          <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+          Export
+        </button>
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>Démandeur
+          </th>
+
+          <th>Email
+          </th>
+
+          <th>Division
+          </th>
+
+          <th>Type Contrat
+          </th>
+          <th>Raison Social
+          </th>
+
+          <th>Objet Contrat
+          </th>
+
+          <th>Entrée En Vigueur
+          </th>
+
+          <th>Date d'expiration
+          </th>
+
+          <th>Delais de traitement
+          </th>
+
+          <th>Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+
+          <tr *ngFor="let d of listDemandeTraiter | paginate: { itemsPerPage: 10, currentPage: p }">
+
+            <td class="text-center">
+              {{d.user.name}}
+            </td>
+
+            <td class="text-center">
+              {{d.user.email}}
+            </td>
+
+            <td  class="text-center">
+              {{d.user.division.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.typeContrat.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.raisonSocial}}
+            </td>
+
+            <td class="text-center">
+              {{d.objetContrat}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateEntreeEnVigueur | date}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateFinContrat | date}}
+            </td>
+
+            <td class="text-center">
+             {{days_between(d.datePrisEnchargeDemande, d.dateUploadFirstContrat)}} Jours
+            </td>
+
+            <td class="text-center">
+
+
+              <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+
+            </td>
+          </tr>
+
+          <tr class="text class=">
+            <td colspan = 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!--................................................Demandes Traiter.........................................-->
+
+
+</div>
+
+<!-------------------------------------------------FIN PROFIL ADMIN--------------------------------------------------------->
+
+
+
+<!------------------------------------------------- DEBUT PROFIL DEMANDEUR--------------------------------------------------------->
+
+<div class="main-content mt-5 pt-5" *ngIf="role === 'ROLE_DEMANDEUR'">
+
+
+  <nav class="navbar navbar-expand-lg bg-dark" *ngIf="displayOption !== 'detailDemandeValider' || displayOption !== 'detailDemandeNonValider'">
+    <!-- Collapse button -->
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="forUser">
+
+      <!-- Links -->
+      <ul class="navbar-nav mr-auto">
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedOne}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('non_valider')">Demandes non prises en Charge
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedTwo}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('valider')">Demandes prises en Charge</a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedThree}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('enCoursDeTraitement')">Demandes en cours de traitement</a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedFour}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('traiter')">Demandes traitées</a>
+        </li>
+
+      </ul>
+      <!-- Links -->
+    </div>
+    <!-- Collapsible content -->
+  </nav>
+
+  <!--<select class="custom-select" [(ngModel)]="role" >
+    <option value="ROLE_ADMIN">One</option>
+    <option value="ROLE_DEMANDEUR">Two</option>
+  </select>-->
+
+  <!--<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#basicExampleModal">
+    Launch demo modal
+  </button>-->
+
+  <!--............................... Demandes Non Prises en Charge..........................................-->
+  <div class="card" *ngIf="displayOption === 'non_valider'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes non prises en charge</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeNonPriseEnCharge.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande pour l'instant</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeNonPriseEnCharge.length !== 0">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th> <th>
+            Raison Social
+          </th> <th>
+            Objet Contrat
+          </th>
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let u of listDemandeNonPriseEnCharge | paginate: { itemsPerPage: 5, currentPage: p }">
+            <td class="table-success">
+              {{u.user.name}}
+            </td>
+            <td>
+              {{u.user.email}}
+            </td>
+            <td class="text-center">
+              {{u.user.division.libelle}}
+            </td>
+            <td class="text-center table-warning">
+              {{u.typeContrat.libelle}}
+            </td>
+            <td class="text-center">
+              {{u.raisonSocial}}
+            </td>
+            <td class="text-center">
+              {{u.objetContrat}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Modifer" class="btn btn-danger btn-icon btn-sm"
+                      (click)="openTraitrementComplement(u.id)">
+                <i class="fa fa-pencil"></i> <!--fa-file-->
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="displayOption = 'detailDemandeNonValider'; getDemandeInfos(u)">
+                <i class="fa fa-file"></i> <!--fa-file-->
+              </button>
+
+
+            </td>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12 >
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+  <!--............................... Demandes Non Prises en Charge..........................................-->
+
+  <!--............................... Demandes Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'valider'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes prises en charge</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandePrisEncharge.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande pour l'instant</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandePrisEncharge.length !== 0">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+          <!--<th *ngIf="">
+            Nombres de Validations
+          </th>-->
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandePrisEncharge | paginate: { itemsPerPage: 5, currentPage: p }">
+            <td class="table-success">
+              {{d.user.name}}
+            </td>
+            <td>
+              {{d.user.email}}
+            </td>
+            <td class="text-center">
+              {{d.user.division.libelle}}
+            </td>
+            <td class="text-center table-warning">
+              {{d.typeContrat.libelle}}
+            </td>
+            <td class="text-center">
+              {{d.raisonSocial}}
+            </td>
+            <td class="text-center">
+              {{d.objetContrat}}
+            </td>
+
+           <!-- <td class="text-center">
+              {{d.processValidation.length}}
+            </td>-->
+
+            <td>
+
+              <!--<div *ngIf="d.statutHasContrat">-->
+              <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.id)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+              <!--</div>-->
+
+              <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="J'approuve le contrat" class="btn btn-secondary btn-icon btn-sm"
+                      (click)="openModalConfirmation(confimContratApproved); getDemandeInfos(d)">
+                <i class="fa fa-check"></i> <!--fa-file-->
+              </button>
+
+              <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Je n'approuve pas le contrat" class="btn btn-danger btn-icon btn-sm"
+                      (click)=" openModal(template); getDemandeInfos(d)">
+                <i class="fa fa-remove"></i> <!--fa-file-->
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i> <!--fa-file-->
+              </button>
+
+            </td>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+  <!--............................... Demandes Valider..........................................-->
+
+
+  <!--............................... detail Demande Non Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeNonValider'">
+
+    <button class="btn btn-primary" (click)="displayOption = 'non_valider'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+            <h6>
+              Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong>
+            </h6>
+        </div>
+      </div>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+      <div class="row">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Documents</h5>
+        </div>
+      </div>
+
+      <div class="table-responsive table-striped">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td class="table-success">
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Non Valider..........................................-->
+
+
+  <!--............................... detail Demande Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeValider'">
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour == 'enCoursDeTraitement'"
+            (click)="displayOption = 'enCoursDeTraitement'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'valider'"
+            (click)="displayOption = 'valider'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'traiter'"
+            (click)="displayOption = 'traiter'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Date Prise en Charge Demande: <strong style="color: #d35400">{{demandes.datePrisEnchargeDemande | date}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong> et traitée dans <strong style="color: #d35400"> {{days_between(demandes.datePrisEnchargeDemande, demandes.dateUploadFirstContrat)}} Jours</strong>
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Date entrer en vigueur:<strong style="color: #d35400"> {{demandes.dateEntreeEnVigueur | date}}</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Date Fin Contrat:<strong style="color: #d35400"> {{demandes.dateFinContrat | date}}</strong>
+          </h6>
+        </div>
+      </div>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+
+
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+      <div *ngIf="isDisplayUser">
+
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Utilasateurs Validateurs</h5>
+        </div>
+
+        <div class="table-responsive table-striped table-bordered" *ngIf="listProcess.length !== 0">
+          <table class="table">
+            <thead class="text-primary text-center">
+            <th>
+              Division
+            </th>
+            <th>
+              Ordre de Validation
+            </th>
+            <th>
+              Etat
+            </th>
+            <!--<th>
+              Options
+            </th>-->
+            </thead>
+
+            <tbody class="text-center">
+
+            <tr *ngFor="let p of listProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+              <td>
+                {{p.division}}
+              </td>
+
+              <td class="text-center">
+                {{p.ordreValidation}}
+              </td>
+
+              <td *ngIf="p.statutValidation == false" class="text-danger">
+                Non Valider
+              </td>
+
+              <td *ngIf="p.statutValidation == true">
+                Validé
+              </td>
+              <!--<td class="text-center">
+                <button type="button" rel="tooltip" title="Ajouter une division" class="btn btn-info btn-icon btn-sm"
+                        (click)="isBeginProcess = true">
+                  <i class="fa fa-plus"></i> &lt;!&ndash;fa-file&ndash;&gt;
+                </button>
+
+                <button type="button" rel="tooltip" title="Retirer une division" class="btn btn-danger btn-icon btn-sm"
+                        (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(u); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-remove"></i> &lt;!&ndash;fa-file&ndash;&gt;
+                </button>
+              </td>-->
+            </tr>
+
+            <tr class="text-center">
+              <td colspan= 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+              </td>
+            </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+
+
+      <!--...............................Tableau Liste des Documents de la demande..........................................-->
+      <div class="row">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Documents</h5>
+        </div>
+      </div>
+
+      <div class="table-responsive table-striped table-bordered">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td>
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Valider..........................................-->
+
+
+  <!--............................................ Remarque contrat non approuver.................................................-->
+
+  <ng-template #template>
+
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Je n'approuve pas le contrat</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <form #f="ngForm" (ngSubmit)="contratDesapproved(f.value)">
+
+        <div class="form-group">
+          <label for="date-picker-example3" type="text" class="text-primary font-weight-bold">Remarque</label>
+          <input ngModel name="message" class="form-control" required
+                 id="date-picker-example3" placeholder="Envoyer une remarque par mail" style="color: #d35400" type="text">
+        </div>
+
+        <button type="submit" class="btn btn-primary" [disabled]="!f.valid" >YES</button>
+        <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">NO</button>
+
+      </form>
+    </div>
+  </ng-template>
+  <!--............................................ Remarque contrat non approuver.................................................-->
+
+<!--...................................Confirm Dialog.....................................................................-->
+
+  <ng-template #confimContratApproved>
+    <div class="modal-body text-center">
+      <p>Do you want to confirm?</p>
+      <button type="button" class="btn btn-default" (click)="approvedContrat()" >Yes</button>
+      <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >No</button>
+    </div>
+
+  </ng-template>
+
+  <!--.............................Confirm Dialog.....................................................................-->
+
+
+  <!--............................... Demandes en Cours De Traitement..........................................-->
+  <div class="card" *ngIf="displayOption === 'enCoursDeTraitement'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes en cours de traitement</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeORProcess.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande en traitements</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeORProcess.length !== 0">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+
+          <!--<th>
+            Niveau Validation
+          </th>-->
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandeORProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.name}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.email}}
+            </td>
+
+            <td  class="text-center " *ngIf="d.type === 'demande'">
+              {{d.data.user.division.libelle}}
+            </td>
+
+            <td class="text-center " *ngIf="d.type === 'demande'">
+              {{d.data.typeContrat.libelle}}
+            </td>
+
+            <td class="text-center " *ngIf="d.type === 'demande'">
+              {{d.data.raisonSocial}}
+            </td>
+
+            <td class="text-center " *ngIf="d.type === 'demande'">
+              {{d.data.objetContrat}}
+            </td>
+
+            <!--<td class="text-center text-danger " *ngIf="d.type === 'demande'; else niveau">
+              Niveau {{d.data.niveauValidation}}
+            </td>
+            <ng-template #niveau>
+            <td ></td>
+            </ng-template>-->
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+
+              <button *ngIf="d.data.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.data.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfos(d.data); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+
+            </td>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+  <!--............................... Demandes en Cours De Traitement..........................................-->
+
+  <!--............................... Demandes Traiter....................................................................-->
+  <div class="card" *ngIf="displayOption === 'traiter'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes traitées</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeTraiter.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeTraiter.length !== 0">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+           Démandeur
+          </th>
+
+          <th>
+           Email
+          </th>
+
+          <th>
+           Division
+          </th>
+
+          <th>
+           Type Contrat
+          </th>
+
+          <th>
+           Raison Social
+          </th>
+
+          <th>
+           Objet Contrat
+          </th>
+
+          <th>
+           Entrée En Vigueur
+          </th>
+
+          <th>
+           Date d'expiration
+          </th>
+
+          <th>
+           Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandeTraiter | paginate: { itemsPerPage: 10, currentPage: p }">
+
+            <td class="text-center">
+              {{d.user.name}}
+            </td>
+
+            <td class="text-center">
+              {{d.user.email}}
+            </td>
+
+            <td  class="text-center">
+              {{d.user.division.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.typeContrat.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.raisonSocial}}
+            </td>
+
+            <td class="text-center">
+              {{d.objetContrat}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateEntreeEnVigueur | date}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateFinContrat | date}}
+            </td>
+
+            <td class="text-center">
+
+              <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+
+            </td>
+
+          </tr>
+          </tbody>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+  <!--................................................Demandes Traiter...................................................-->
+
+
+</div>
+
+<!------------------------------------------------- Fin PROFIL DEMANDEUR--------------------------------------------------------->
+
+
+
+<!------------------------------------------------- DEBUT PROFIL VALIDATEUR--------------------------------------------------------->
+
+<div class="main-content mt-5 pt-5" *ngIf="role === 'ROLE_VALIDATEUR'">
+
+
+  <nav class="navbar navbar-expand-lg bg-dark">
+    <!-- Collapse button -->
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="forUser2">
+
+      <!-- Links -->
+      <ul class="navbar-nav mr-auto">
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedTwo}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('valider')">Demandes en cours de traitement
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedFour}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('traiter')">Demandes traitées</a>
+        </li>
+
+      </ul>
+      <!-- Links -->
+    </div>
+    <!-- Collapsible content -->
+  </nav>
+
+
+  <!--............................... Demandes Valider..........................................-->
+
+  <div class="card" *ngIf="displayOption == 'valider'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes en cours de traitement</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeORProcess.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande en traitements</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeORProcess.length !== 0">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+
+          <!--<th>
+            Niveau Validation
+          </th>-->
+
+          <th>
+            Validateur
+          </th>
+
+          <th>
+            Ordre de Validation
+          </th>
+
+          <th>
+            Statut
+          </th>
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandeORProcess | paginate: { itemsPerPage: 10, currentPage: p }">
+
+            <td class="table-success" *ngIf="d.type === 'demande'; else demandeur">
+              {{d.data.user.name}}
+            </td>
+            <ng-template #demandeur>
+              <td ></td>
+            </ng-template>
+
+            <td class="table-success" *ngIf="d.type === 'demande'; else mail">
+              {{d.data.user.email}}
+            </td>
+            <ng-template #mail>
+              <td ></td>
+            </ng-template>
+
+            <td  class="text-center table-success" *ngIf="d.type === 'demande'; else divis">
+              {{d.data.user.division.libelle}}
+            </td>
+            <ng-template #divis>
+              <td ></td>
+            </ng-template>
+
+            <td class="text-center table-success" *ngIf="d.type === 'demande'; else libelle">
+              {{d.data.typeContrat.libelle}}
+            </td>
+            <ng-template #libelle>
+              <td></td>
+            </ng-template>
+
+            <td class="text-center table-success" *ngIf="d.type === 'demande'; else raison">
+              {{d.data.raisonSocial}}
+            </td>
+            <ng-template #raison>
+              <td ></td>
+            </ng-template>
+
+            <td class="text-center table-success" *ngIf="d.type === 'demande'; else objet">
+              {{d.data.objetContrat}}
+            </td>
+            <ng-template #objet>
+              <td ></td>
+            </ng-template>
+
+            <!--<td class="text-center text-danger table-success" *ngIf="d.type === 'demande'; else niveau">
+              Niveau {{d.data.niveauValidation}}
+            </td>
+            <ng-template #niveau>
+            <td ></td>
+            </ng-template>-->
+            <!--Process-->
+            <td class="text-center font-weight-bold table-info" *ngIf="d.type === 'process'; else pdivision">
+              {{d.data.division}}
+            </td>
+            <ng-template #pdivision>
+            <td class="table-success"></td>
+            </ng-template>
+
+            <td class="text-center font-weight-bold table-info" *ngIf="d.type === 'process'; else ordreValidation">
+               {{d.data.ordreValidation}}
+            </td>
+            <ng-template #ordreValidation>
+              <td class="table-success"></td>
+            </ng-template>
+
+            <td class="text-center text-success font-weight-bold table-info" *ngIf="d.type === 'process' && d.data.statutValidation === true ; else statutValidation">
+               Validé
+            </td>
+
+            <ng-template #statutValidation>
+              <td class="text-danger text_bold font-weight-bold table-info" *ngIf="d.type === 'process'; else noetat"> Non Validé</td>
+
+              <ng-template #noetat>
+                <td class="table-success"></td>
+              </ng-template>
+
+            </ng-template>
+
+            <td class="table-success" *ngIf="d.type === 'demande'; else itsprocess">
+
+              <button *ngIf="d.data.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.data.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfosFORValid(d.data, 'detailDemandeValider'); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+            </td>
+
+            <ng-template #itsprocess>
+
+              <td class="table-info">
+                <button *ngIf="!d.data.statutValidation && user.division.libelle === d.data.division && d.ifNiveauCorrespond"
+                        type="button" rel="tooltip" title="Valider la demande" class="btn btn-primary btn-icon btn-sm"
+                        (click)="openModalConfirmation(confimDivision); getDemandeInfos(d.data)">
+                  <i class="fa fa-check"></i>
+                </button>
+
+                <button *ngIf="!d.data.statutValidation && user.division.libelle === d.data.division && d.ifNiveauCorrespond"
+                        type="button" rel="tooltip" title="Rejeter la demande" class="btn btn-danger btn-icon btn-sm"
+                        (click)="openModalConfirmation(rejectDivision); getDemandeInfos2(d.data.demandeProcess)">
+                  <i class="fa fa-remove"></i>
+                </button>
+              </td>
+
+            </ng-template>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+  <!--............................... Demandes Valider..........................................-->
+
+
+  <!--............................... detail Demande Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeValider'">
+
+    <button *ngIf="displayOptionRetour === 'valider'" class="btn btn-primary" (click)="displayOption = 'valider'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button *ngIf="displayOptionRetour === 'traiter'" class="btn btn-primary" (click)="displayOption = 'traiter'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Date Prise en Charge Demande: <strong style="color: #d35400">{{demandes.datePrisEnchargeDemande | date}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong> et traitée dans <strong style="color: #d35400"> {{days_between(demandes.datePrisEnchargeDemande, demandes.dateUploadFirstContrat)}} Jours</strong>
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Date entrer en vigueur:<strong style="color: #d35400"> {{demandes.dateEntreeEnVigueur | date}}</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Date Fin Contrat:<strong style="color: #d35400"> {{demandes.dateFinContrat | date}}</strong>
+          </h6>
+        </div>
+      </div>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+
+
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+      <div *ngIf="isDisplayUser">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Utilasateurs Validateurs</h5>
+        </div>
+
+        <div class="table-responsive table-striped table-bordered">
+          <table class="table">
+            <thead class="text-primary text-center">
+            <th>
+              Division
+            </th>
+            <th>
+              Ordre de Validation
+            </th>
+            <th>
+              Etat
+            </th>
+           <!-- <th>
+              Options
+            </th>-->
+            </thead>
+
+            <tbody class="text-center">
+
+            <tr *ngFor="let p of listProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+              <td>
+                {{p.division}}
+              </td>
+
+              <td class="text-center">
+                {{p.ordreValidation}}
+              </td>
+
+              <td *ngIf="p.statutValidation == false" class="text-danger">
+                Non Valider
+              </td>
+
+              <td *ngIf="p.statutValidation == true">
+                Validé
+              </td>
+
+              <!--<td class="text-center" *ngIf="p.demandeProcess.user">
+
+                <button type="button" rel="tooltip" title="Retirer une division" class="btn btn-danger btn-icon btn-sm"
+                        (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(u); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-check"></i> &lt;!&ndash;fa-file&ndash;&gt;
+                </button>
+              </td>-->
+            </tr>
+
+            <tr class="text-center">
+              <td colspan="12">
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+
+              </td>
+            </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+
+
+      <!--...............................Tableau Liste des Documents de la demande..........................................-->
+      <div class="row">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Documents</h5>
+        </div>
+      </div>
+
+      <div class="table-responsive table-striped table-bordered">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td>
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Valider..........................................-->
+
+  <!--...................................Confirm Dialog.....................................................................-->
+
+  <ng-template #confimDivision>
+
+    <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+    <div class="modal-body text-center">
+      <!--<p>Voulez vous confirmez?</p>
+      <button type="button" class="btn btn-default" (click)="updateProcessValidation()" >OUI</button>
+      <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >NON</button>-->
+
+      <form  #f="ngForm" (ngSubmit)="updateProcessValidation()" >
+
+        <div class="row">
+
+          <div class="col-md-12 m-1">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Vôtre Commentaire ici</label>
+              <input type="text" class="form-control text-primary"  [(ngModel)]="processValidation.commentaire" required name="commentaire" placeholder="Comentaire non obligatoire">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary btn-block btn-round"  [disabled]="!f.valid">Valider</button>
+          </div>
+
+          <div class="col-md-6">
+            <button type="button" class="btn btn-danger btn-block btn-round" (click)="modalRef.hide()">Annuler</button>
+          </div>
+
+        </div>
+
+      </form>
+
+    </div>
+
+
+  </ng-template>
+
+  <!--.............................Confirm Dialog.....................................................................-->
+
+  <!--.............................Reject Dialog.....................................................................-->
+  <ng-template #rejectDivision>
+    <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Etes vous sûre de vouloir rejeter la demande</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <form  #f="ngForm" (ngSubmit)="rejectProcessValidation(f.value)" >
+
+        <div class="row">
+
+          <div class="col-md-12 m-1">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Vôtre Commentaire ici</label>
+              <input type="text" class="form-control text-primary" ngModel name="commentaire" required placeholder="Comentaire Obligatoire">
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary btn-block btn-round" [disabled]="!f.valid">Valider</button>
+          </div>
+
+          <div class="col-md-6">
+            <button type="button" class="btn btn-danger btn-block btn-round" (click)="modalRef.hide()">Annuler</button>
+          </div>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </ng-template>
+  <!--.............................Reject Dialog.....................................................................-->
+
+
+  <!--............................... Demandes Traiter....................................................................-->
+  <div class="card" *ngIf="displayOption === 'traiter'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes traitées</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeTraiter.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeTraiter.length !== 0">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandeTraiter | paginate: { itemsPerPage: 10, currentPage: p }">
+
+            <td class="text-center">
+              {{d.user.name}}
+            </td>
+
+            <td class="text-center">
+              {{d.user.email}}
+            </td>
+
+            <td  class="text-center">
+              {{d.user.division.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.typeContrat.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.raisonSocial}}
+            </td>
+
+            <td class="text-center">
+              {{d.objetContrat}}
+            </td>
+
+            <td class="text-center">
+
+
+              <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+
+            </td>
+          </tr>
+          <tr class="text-center">
+            <td class="text-center colspan= 12 text-danger">
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+  <!--................................................Demandes Traiter...................................................-->
+
+</div>
+<!------------------------------------------------- Fin PROFIL VALIDATEUR--------------------------------------------------------->
+
+
+<!--...................................Fiche de Validation Dialog.....................................................................-->
+
+<ng-template #ficheValidation>
+
+  <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+  <div class="modal-header">
+    <h4 class="modal-title text-center">Fiche de Validation</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+ <!-- <button type="button" class="btn btn-primary btn-block" title="Exporter" (click)="ifModif= false;pdfDeclaration('fiche','fiche',15,10,220)" >
+    <i class="fa fa-file-pdf"></i>
+  </button>-->
+
+  <button class="btn btn-primary my-sm-0" title="Exporter" printSectionId="fiche" ngxPrint [useExistingCss]="true">
+    <i class="fa fa-download"></i>
+  </button>
+
+  <div class="modal-body" id="fiche">
+
+    <h5 class="title text-center">ORANGE GUINEE SA</h5>
+    <h6>
+      DIRECTION DE LA REGLEMENTATION ET DES AFFAIRES JURIDIQUES
+    </h6>
+    <br>
+    <h6>
+    CONTRAT DE {{demandes.typeContrat.libelle}} A USAGE PROFESSIONEL N°{{demandes.id}}/DRJ-{{myDate | date:'MM-yyyy'}}
+    </h6>
+    <br>
+    <h6>
+      COCONTRACTANT: {{demandes.raisonSocial}}
+    </h6>
+    <br>
+    <div>
+      <h6>SOUSCRIT-LE:</h6><!--{{demandes.dateSouscription | date:'dd/MM/yyyy'}}-->
+    </div>
+    <br>
+    <div>
+      <h6>NOTIFIE-LE:</h6>
+      <!--{{demandes.dateEntreeEnVigueur | date}}-->
+    </div>
+    <br>
+    <div>
+     <h6>OBJET:</h6>
+      Le présent contrat a pour objet {{demandes.objetContrat}}<br>
+    </div>
+    <br>
+
+    <div>
+      <h6>Durée:</h6>Le présent contrat qui prend effet à compter de sa date de signature, est conclu pour une durée de {{demandes.duration}} mois, renouvelable par tacite reconduction sauf dénonciation par l’une des parties par lettre simple avec accusé de réception trois (3) mois avant l’échéance du terme. <br>
+    </div>
+
+    <div>
+      <h6>MODALITES FINANCIERES:</h6>Le présent contrat est consenti {{demandes.monthlyAmountPrestation}} GNF.
+
+      <div class="row" *ngIf="ifInput">
+
+          <div class="col-md-8">
+            <input [(ngModel)]="demandes.monthlyAmountPrestation" name="monthlyAmountPrestation" type="text" placeholder="MODALITES FINANCIERES" class="form-control">
+          </div>
+
+          <div class="col-md-4">
+            <button class="btn-primary" title="Valider" (click)="ifInput = false; ifModif= true">
+              <i class="fa fa-check"></i>
+            </button>
+          </div>
+      </div>
+      <button *ngIf="ifModif" class="btn-primary" title="Modifier" (click)="ifInput = true; ifModif= false"><i class="fa fa-pencil"></i></button>
+    </div>
+    <br>
+
+    <!--.......................................Tableau des validateurs...................................................-->
+    <div class="table-bordered"><!--*ngIf="listDemandePrisEncharge.length !== 0-->
+      <table class="table">
+        <thead class="text-primary text-center">
+        <th>
+          Division
+        </th>
+        <th>
+          Date Validation
+        </th>
+        <th>
+          Commentaire
+        </th>
+        <th>
+          Signature
+        </th>
+        <!--<th>
+          Options
+        </th>-->
+        </thead>
+
+        <tbody class="text-center">
+
+        <tr *ngFor="let p of listProcess"><!--| paginate: { itemsPerPage: 5, currentPage: p }-->
+
+          <td>
+            {{p.division}}
+          </td>
+
+          <td class="text-center">
+            {{p.dateValidation | date}}
+          </td>
+
+          <td class="text-center">
+            {{p.commentaire}}
+          </td>
+
+          <td>
+            <div class="img-wrapper text-center">
+
+              <img src="data:image/{{p.demandeProcess.user.typeImageSignature}};base64,{{p.demandeProcess.user.contentImageSignature}}" width="200%" height="80%" class="float-l text-center" alt="...">
+
+            </div>
+          </td>
+
+        </tr>
+
+        <!--<tr class="text-center">
+          <td colspan = 12>
+            <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant">
+            </pagination-controls>
+          </td>
+        </tr>-->
+
+        </tbody>
+      </table>
+    </div> <!--table-responsive table-striped -->
+    <!--.......................................Fermeture Tableau des validateurs...................................................-->
+    <br>
+    <div class="row">
+
+      <div class="col-md-6">
+        <h6>Exercice {{myDate | date:'yyyy'}}</h6>
+
+      </div>
+
+      <div class="col-md-6">
+        <h6>Important : ce document  de  travail  est strictement  confidentiel</h6>
+      </div>
+
+    </div>
+
+
+      <!--<p>Voulez vous confirmez?</p>
+      <button type="button" class="btn btn-default" (click)="updateProcessValidation()" >OUI</button>
+      <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >NON</button>-->
+
+
+  </div>
+
+
+</ng-template>
+
+<!--.............................Fermeture Fiche de Validation Dialog.....................................................................-->
+
+
+
+<!--.............................Role Gestionnaire.....................................................................-->
+<div class="main-content mt-5 pt-5" *ngIf="role === 'ROLE_GESTIONNAIRE'">
+
+  <!--................................Menu de navigation.....................................-->
+  <nav class="navbar navbar-expand-lg bg-dark" *ngIf="displayOption != 'detailDemandeValider' || displayOption != 'detailDemandeNonValider'">
+    <!-- Collapse button -->
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse">
+
+      <!-- Links -->
+      <ul class="navbar-nav mr-auto">
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedOne}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('non_valider')">Demandes non prises en Charge
+            <!--<span class="sr-only">(current)</span>-->
+          </a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedTwo}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('valider')">Demandes prises en Charge</a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedThree}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('enCoursDeTraitement')">Demandes en cours de traitement</a>
+        </li>
+
+        <li [ngClass]="{'nav-item':true, 'active':isactivatedFour}">
+          <a class="nav-link" style="cursor: pointer" (click)="onChangeOption('traiter')">Demandes traitées</a>
+        </li>
+
+      </ul>
+      <!-- Links -->
+    </div>
+    <!-- Collapsible content -->
+  </nav>
+  <!--................................ FERMETURE Menu de navigation.....................................-->
+
+  <!--<select class="custom-select" [(ngModel)]="role" >
+    <option value="ROLE_ADMIN">One</option>
+    <option value="ROLE_DEMANDEUR">Two</option>
+  </select>-->
+
+
+  <!--............................... Demandes Non Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'non_valider'">
+
+    <div class="card-header">
+      <h4 class="card-title title text-center"> Liste des Demandes non prises en charge</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeNonPriseEnCharge.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande pour l'instant</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeNonPriseEnCharge.length !== 0">
+
+        <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+          <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+          Export
+        </button>
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th> <th>
+            Raison Social
+          </th> <th>
+            Objet Contrat
+          </th>
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let u of listDemandeNonPriseEnCharge | paginate: { itemsPerPage: 5, currentPage: p }">
+            <td class="table-success">
+              {{u.user.name}}
+            </td>
+            <td>
+              {{u.user.email}}
+            </td>
+            <td class="text-center">
+              {{u.user.division.libelle}}
+            </td>
+            <td class="text-center table-warning">
+              {{u.typeContrat.libelle}}
+            </td>
+            <td class="text-center">
+              {{u.raisonSocial}}
+            </td>
+            <td class="text-center">
+              {{u.objetContrat}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="displayOption = 'detailDemandeNonValider'; getDemandeInfos(u)">
+                <i class="fa fa-file"></i> <!--fa-file-->
+              </button>
+            </td>
+          </tr>
+          <tr class="text-center">
+            <td colspan = 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+    </div>
+
+  </div>
+  <!--............................... Demandes Non Valider..........................................-->
+
+
+  <!--............................... Demandes Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'valider'">
+
+    <div class="card-header">
+      <h4 class="card-title title text-center"> Liste des Demandes prises en charge</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandePrisEncharge.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande pour l'instant</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandePrisEncharge.length !== 0">
+
+        <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+          <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+          Export
+        </button>
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+          <!--<th>
+            Nombres de Validations
+          </th>-->
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandePrisEncharge | paginate: { itemsPerPage: 5, currentPage: p }">
+            <td class="table-success">
+              {{d.user.name}}
+            </td>
+            <td>
+              {{d.user.email}}
+            </td>
+            <td class="text-center">
+              {{d.user.division.libelle}}
+            </td>
+            <td class="text-center table-warning">
+              {{d.typeContrat.libelle}}
+            </td>
+            <td class="text-center">
+              {{d.raisonSocial}}
+            </td>
+            <td class="text-center">
+              {{d.objetContrat}}
+            </td>
+
+            <!-- <td class="text-center">
+               {{d.processValidation.length}}
+             </td>-->
+
+            <td class="text-center">
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-dark btn-icon btn-sm"
+                      (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i> <!--fa-file-->
+              </button>
+
+              <div *ngIf="!d.statutHasContrat">
+                <label style="font-size: 25px; cursor: pointer" class="text-primary" title="Uploader la premiere version du contrat" for="contentImage125">
+                  <i class="fa fa-file-pdf"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImage125" class="form-control" (change)="onSelectFileOut($event,d.id)" name="contentImage125"/>
+              </div>
+
+              <div *ngIf="d.statutHasContrat && !d.contratApproved">
+                <label style="font-size: 25px; cursor: pointer" class="text-primary" title="Mettre à jour le contrat uploader" for="contentImageAB">
+                  <i class="fa fa-pencil"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImageAB" class="form-control" (change)="onSelectFileOut($event,d.id)" name="contentImageAB"/>
+              </div>
+
+              <div *ngIf="d.statutHasContrat">
+                <button type="button" rel="tooltip" title="Afficher le contrat" class="btn btn-warning btn-icon btn-sm"
+                        (click)="getContratByDemande(d.id)">
+                  <i class="fa fa-eye"></i> <!--fa-file-->
+                </button>
+              </div>
+
+            </td>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+  <!--......................................... Demandes Valider...........................................................-->
+
+
+  <!--............................... detail Demande Non Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeNonValider'">
+
+    <button class="btn btn-primary" (click)="displayOption = 'non_valider'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong>
+          </h6>
+        </div>
+      </div>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius: '3px' }"></ngx-loading>
+
+      <!--...................Bouton Prise en Charge et Demande De Complement..................................-->
+      <div class="row">
+
+        <div class="col-md-12" *ngIf="demandes.statusPrisEnCharge == false || demandes.statusDemandeComplement == false ">
+          <div class="form-group">
+
+            <button class="btn btn-primary" [disabled]="btnShowComplement || demandes.statusDemandeComplement == true " (click)="openModalConfirmation(validationPrisEnCharge)">
+              <i class="fa fa-check" style="font-size: 15px"></i>
+              Valider la prise en Charge
+            </button>
+
+            <button class="btn bg-dark" *ngIf="demandes.statusDemandeComplement == false" (click)="btnShowComplement = true" [disabled]="btnShowComplement">
+              <i class="fa fa-arrow-down" style="font-size: 15px"></i>
+              Envoyer une Demande de Complement de Documents
+            </button>
+          </div>
+        </div>
+
+        <!--.......................Modal Cofirmation Pris en Charge-->
+        <ng-template #validationPrisEnCharge>
+          <div class="modal-body text-center">
+            <h6 class="title">Voulez vous confirmer la Prise en charge?</h6>
+            <button type="button" class="btn btn-default" (click)="prisEnChargeDemande()" >Yes</button>
+            <button type="button" class="btn btn-primary" (click)="modalRef.hide()" >No</button>
+          </div>
+
+        </ng-template>
+
+
+        <!--Affichage du Motif de complement de document-->
+        <div *ngIf="demandes.statusDemandeComplement == true" class="col-md-12 card bg-dark text-primary">
+          <h5 class="text-center"> Demande de Complement de Documents en Cours</h5>
+          <h6 class="title text-center">Motif: {{demandes.remarqueComplement}}</h6>
+        </div>
+        <!--Fermeture affichage du Motif de complement de document-->
+      </div>
+      <!--...................Bouton Prise en Charge et Demande De Complement..................................-->
+
+      <!-- ........................................Send Remarque Complement Document............................................................ -->
+      <div class="row card bg-dark" *ngIf="btnShowComplement">
+
+        <div>
+          <button title="Fermer" (click)="closeCard()">x</button>
+        </div>
+
+        <div class="form-group">
+          <!--<label for="remarqueComplement" class="text-primary font-weight-bold">Vôtre remarque ici</label>-->
+          <textarea  class="form-control z-depth-1 text-primary" id="remarqueComplement2" type="text" [(ngModel)] = "demandes.remarqueComplement" name="remarqueComplement2" placeholder="Vôtre remarque ici" required
+                     rows="3">
+        </textarea>
+        </div>
+
+        <div>
+          <button class="btn btn-primary" [disabled]="demandes.remarqueComplement == null || demandes.remarqueComplement === ''" (click)="demandeComplement()">
+            <i class="fa fa-check" style="font-size: 15px"></i>
+            Valider la demande de Complément
+          </button>
+        </div>
+
+      </div>
+      <!-- ........................................Close Send Remarque Complement Document............................................................ -->
+
+
+      <!--...............................Tableau Liste des Documents de la demande..........................................-->
+      <div class="row">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Documents</h5>
+        </div>
+      </div>
+
+      <div class="table-responsive table-striped">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td class="table-success">
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Non Valider..........................................-->
+
+
+  <!--............................... detail Demande Valider..........................................-->
+  <div class="card" *ngIf="displayOption === 'detailDemandeValider'">
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour == 'enCoursDeTraitement'"
+            (click)="displayOption = 'enCoursDeTraitement'; getListDemandORProcess()">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'valider'"
+            (click)="displayOption = 'valider'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <button class="btn btn-primary" *ngIf="displayOptionRetour === 'traiter'"
+            (click)="displayOption = 'traiter'">
+      <i class="fa fa-arrow-left"></i> Retour</button>
+
+    <div class="card-header">
+      <h4 class="title text-center"> Details Demande</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Date Prise en Charge Demande: <strong style="color: #d35400">{{demandes.datePrisEnchargeDemande | date}}</strong>
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Démandeur:<strong style="color: #d35400"> {{ demandes.user.name}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Email:<strong style="color: #d35400"> {{demandes.user.email}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Direction:<strong style="color: #d35400"> {{demandes.user.direction}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Division:<strong style="color: #d35400"> {{demandes.user.division.libelle}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Type Contrat:<strong style="color: #d35400"> {{demandes.typeContrat.libelle}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Raison Social:<strong style="color: #d35400"> {{demandes.raisonSocial}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Objet Contrat:<strong style="color: #d35400"> {{demandes.objetContrat}}</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Durée:<strong style="color: #d35400"> {{demandes.duration}} Mois</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <h6>
+            Préavis:<strong style="color: #d35400"> {{demandes.preavis}} Mois</strong>
+          </h6>
+        </div>
+
+        <div class="col-md-6">
+          <h6>
+            Modalite de Renouvelement:<strong style="color: #d35400"> {{demandes.modalityRenewal}}</strong>
+          </h6>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Montant mensuel de la prestation:<strong style="color: #d35400"> {{demandes.monthlyAmountPrestation}} GNF</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Délais de Traitement Prévus:<strong style="color: #d35400"> {{demandes.typeContrat.delayOfTraitment}} Jours</strong> et traitée dans <strong style="color: #d35400"> {{days_between(demandes.datePrisEnchargeDemande, demandes.dateUploadFirstContrat)}} Jours</strong>
+          </h6>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h6>
+            Date entrer en vigueur:<strong style="color: #d35400"> {{demandes.dateEntreeEnVigueur | date}}</strong>
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <h6>
+            Date Fin Contrat:<strong style="color: #d35400"> {{demandes.dateFinContrat | date}}</strong>
+          </h6>
+        </div>
+      </div>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+      <!--......................................NG SELECT et list des utilisateut-->
+      <button *ngIf="isBeginProcess" [disabled]="!demandes.statutHasContrat || !demandes.contratApproved" class="btn btn-primary mr-2" type="button" title="Ajouter des Divisions pour l'ouverture du circuit de validation" (click)="openModal(ajoutUtilisateur)">
+        <i class="fa fa-plus"></i>
+      </button>
+
+      <ng-template #ajoutUtilisateur>
+
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Ajouter des Divisions pour l'ouverture du circuit de validation</h4>
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+
+          <ng-select [items]="items"
+                     bindLabel="division"
+                     bindValue="name"
+                     [multiple]="true"
+                     placeholder="Select division"
+                     [(ngModel)]="selectedDivisions">
+          </ng-select>
+          <strong><p class="text-primary">
+            Divisions selectionnées: {{selectedDivisions+" "}}
+          </p>
+          </strong>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary btn-block pull-right" type="button" (click)="beginProcess()">
+            <i class="fa fa-check"></i>
+            Valider</button>
+          <button class="btn btn-danger btn-block" type="button" (click)="modalRef.hide()">
+            <i class="fa fa-remove"></i>
+            Fermer</button>
+        </div>
+      </ng-template>
+
+      <!--......................................FERNG SELECT list des utilisateut-->
+
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+      <div *ngIf="isDisplayUser">
+
+        <button type="button" class="btn btn-primary" (click)="getCurrentDate();displayValidationForm()">Afficher La Fiche de Validation</button>
+
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Utilasateurs Validateurs</h5>
+        </div>
+
+        <!-- <button type="button" rel="tooltip" style="float: right" title="Ajouter une division" class="btn btn-info btn-icon btn-sm"
+                 (click)="isBeginProcess = true">
+           <i class="fa fa-plus"></i>
+
+         </button>-->
+        <div class="table-responsive table-striped table-bordered"><!--*ngIf="listDemandePrisEncharge.length !== 0-->
+          <table class="table">
+            <thead class="text-primary text-center">
+            <th>
+              Division
+            </th>
+            <th>
+              Ordre de Validation
+            </th>
+            <th>
+              Etat
+            </th>
+            <!--<th>
+              Options
+            </th>-->
+            </thead>
+
+            <tbody class="text-center">
+
+            <tr *ngFor="let p of listProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+              <td>
+                {{p.division}}
+              </td>
+
+              <td class="text-center">
+                {{p.ordreValidation}}
+              </td>
+
+              <td *ngIf="p.statutValidation == false" class="text-danger">
+                Non Valider
+              </td>
+
+              <td *ngIf="p.statutValidation == true">
+                Validé
+              </td>
+              <!--<td class="text-center">
+                <button type="button" rel="tooltip" title="Ajouter une division" class="btn btn-info btn-icon btn-sm"
+                        (click)="isBeginProcess = true">
+                  <i class="fa fa-plus"></i> &lt;!&ndash;fa-file&ndash;&gt;
+                </button>
+
+                <button type="button" rel="tooltip" title="Retirer une division" class="btn btn-danger btn-icon btn-sm"
+                        (click)="displayOption = 'detailDemandeValider'; getDemandeInfos(u); onChangeOption('detailDemandeValider')">
+                  <i class="fa fa-remove"></i> &lt;!&ndash;fa-file&ndash;&gt;
+                </button>
+              </td>-->
+            </tr>
+
+            <tr class="text-center">
+              <td colspan = 12>
+                <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant">
+                </pagination-controls>
+              </td>
+            </tr>
+
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+      <!--...........................Tableau liste des utilisateurs ajouter..........................................................-->
+
+      <!--...............................Tableau Liste des Documents de la demande..........................................-->
+      <div class="row">
+        <div class="col-md-12 title text-center">
+          <h5 class="title">Liste des Documents</h5>
+        </div>
+      </div>
+
+      <div class="table-responsive table-striped table-bordered">
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Nom Dossier
+          </th>
+          <th>
+            Option
+          </th>
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDocument">
+            <td>
+              {{d.name}}
+            </td>
+
+            <td class="text-center">
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="showPdf(d.content)">
+                <i class="fa fa-eye"></i> <!--fa-file-->
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+
+        </table>
+      </div>
+      <!--............................... Fermeture Tableau Liste des Documents de la demande..........................................-->
+
+    </div>
+
+  </div>
+  <!--...............................Fermeture Div detail Demande Valider..........................................-->
+
+
+  <!--............................... Demandes en Cours De Traitement..........................................-->
+  <div class="card" *ngIf="displayOption === 'enCoursDeTraitement'">
+
+    <div class="card-header">
+      <h4 class="card-title title"> Liste des Demandes en cours de traitement</h4>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="listDemandeORProcess.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande en traitements</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeORProcess.length !== 0">
+
+        <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+          <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+          Export
+        </button>
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>
+            Démandeur
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Division
+          </th>
+          <th>
+            Type Contrat
+          </th>
+          <th>
+            Raison Social
+          </th>
+          <th>
+            Objet Contrat
+          </th>
+
+          <!--<th>
+            Niveau Validation
+          </th>-->
+
+          <!-- <th>
+             Validateur
+           </th>
+
+           <th>
+             Ordre de Validation
+           </th>
+
+           <th>
+             Statut
+           </th>-->
+
+          <th>
+            Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+          <tr *ngFor="let d of listDemandeORProcess | paginate: { itemsPerPage: 5, currentPage: p }">
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.name}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.email}}
+            </td>
+
+            <td  class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.user.division.libelle}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.typeContrat.libelle}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.raisonSocial}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+              {{d.data.objetContrat}}
+            </td>
+
+            <td class="text-center" *ngIf="d.type === 'demande'">
+
+
+              <!--<div *ngIf="!d.data.statutHasContrat && d.data.contratApproved">
+                <label style="font-size: 25px; cursor: pointer" title="Uploader la premiere version du contrat1" for="contentImage2">
+                  <i class="fa fa-file-pdf"></i>
+                </label>
+                <input hidden type="file" accept=".pdf" id="contentImage2" class="form-control" (change)="onSelectFileOut($event,d.data.id)" name="contentImage"/>
+              </div>-->
+
+              <button *ngIf="d.data.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.data.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfos(d.data); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+
+              <!--&& ifProcessIsEmpty-->
+              <button *ngIf="!d.data.hasSignedContrat && d.ifProcessIsEmpty && d.ifAllUsersHasValidated" type="button" rel="tooltip" title="Uploader la version signée du contrat" class="btn btn-danger btn-icon btn-sm"
+                      (click)="getDemandeInfos(d.data); openModal(uploadContratSigner)">
+                <i class="fa fa-file-pdf"></i>
+              </button>
+
+            </td>
+          </tr>
+
+          <tr class="text-center">
+            <td colspan= 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!--................................................Modal Upload Contrat Signer .........................................-->
+
+  <ng-template #uploadContratSigner>
+
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Uploader la version signée du contrat</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <form #f="ngForm" (ngSubmit)="uploadSignedContrat(f.valueOf())">
+
+        <div class="row">
+
+          <div class="col-6 form-group">
+            <label for="dateEntrerVigueur" type="text" class="text-primary font-weight-bold">Date entrée en vigueur</label>
+            <input ngModel name="dateEntreeEnVigueur" class="form-control" required
+                   id="dateEntrerVigueur" placeholder="Entrer la date d'entrer en vigueur" style="color: #d35400" type="date">
+          </div>
+
+          <div class="col-6 form-group">
+            <label for="dateFinContrat" type="text" class="text-primary font-weight-bold">Date fin du contrat</label>
+            <input ngModel name="dateFinContrat" class="form-control" required
+                   id="dateFinContrat" placeholder="Date fin du contrat" style="color: #d35400" type="date">
+          </div>
+
+        </div>
+
+        <!--Formulaire deja saisie a la souscription-->
+        <div class="row">
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Raison Social</label>
+              <input type="text" class="form-control" [(ngModel)] = "demandes.raisonSocial" required name="raisonSocial" placeholder="Raison Social">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Objet Contrat</label>
+              <input type="text" class="form-control" [(ngModel)] ="demandes.objetContrat" required name="objetContrat" placeholder="Objet Contrat">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Durée du contrat en mois</label>
+              <input type="text" class="form-control" [(ngModel)] = "demandes.duration" required name="duration" placeholder="Durée">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Preavis en mois</label>
+              <input type="text" class="form-control" placeholder="Preavis" [(ngModel)] = "demandes.preavis" required name="preavis">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1" for="textarea">Modalite de Renouvelement</label>
+              <!--<input type="text" class="form-control" placeholder="Modalite de Renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal">-->
+
+              <textarea class="form-control rounded-0" id="textarea" placeholder="Modalite de renouvelement" [(ngModel)] = "demandes.modalityRenewal" required name="modalityRenewal" rows="10"></textarea>
+
+            </div>
+          </div>
+
+          <!--<div class="col-md-6">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+              <input type="number" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation" placeholder="">
+            </div>
+          </div>-->
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label class="text-primary font-weight-bold ml-1">Montant mensuel de la prestation</label>
+              <input type="text" placeholder="Montant Mensuel de la prestation" class="form-control" [(ngModel)] = "demandes.monthlyAmountPrestation" required name="monthlyAmountPrestation">
+            </div>
+          </div>
+        </div>
+        <!--Formulaire deja saisie a la souscription-->
+
+        <div class="row ml-2">
+
+          <!-- Default checked -->
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" name="isChecked" [(ngModel)] ="isChecked" id="defaultChecked2" checked>
+            <label class="custom-control-label" for="defaultChecked2">Je charge la version du contrat signé par le Co-contractant</label>
+          </div>
+        </div>
+
+        <div class="row ml-1">
+
+          <div class="col-md-3">
+            <label  style="font-size: 25px; cursor: pointer" title="Uploader la version signée du contrat" class="text-primary" for="contentImageUpload">
+              <i class="fa fa-file-pdf"></i>
+            </label>
+            <input hidden type="file" accept=".pdf" id="contentImageUpload" class="form-control" (change)="onSelectFileOut($event,0)" name="contentImage"/>
+          </div>
+
+          <div *ngIf="selectedFiles !== null && selectedFiles.length !== 0" class="col-md-7">
+            <div  class="col-3 card bg-dark text-white text-center mr-2" *ngFor="let s of selectedFiles">
+              {{s.name}}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="!f.valid" >Valider</button>
+          </div>
+
+          <div class="col-md-6">
+            <button type="button" class="btn btn-danger btn-block" (click)="modalRef.hide(); selectedFiles = []">Annuler</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </ng-template>
+  <!--................................................FERMETURE Modal Upload Contrat Signer .........................................-->
+
+
+  <!--............................... Demandes en Cours De Traitement..........................................-->
+
+
+  <!--............................... Demandes Traiter..........................................-->
+
+  <div class="card" *ngIf="displayOption === 'traiter'">
+
+    <div class="card-header">
+      <h4 class="card-title title text-center"> Liste des Demandes traitées</h4>
+    </div>
+
+    <div class="card-body">
+
+
+      <form  #f="ngForm" (ngSubmit)="searchContratByTypeAndDirection(f.value)" class="form-inline">
+
+        <label for="researchLate2" type="text" class="text-primary font-weight-bold text-center">Direction</label>
+        <input ngModel name="direction" class="input-group-sm form-control" required
+               id="researchLate2" placeholder="Direction" style="color: #d35400">
+
+
+        <div class="mt-2">
+          <!-- <label class="text-primary font-weight-bold">Selectionner un Type Contrat</label>-->
+          <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                  (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+            <option value="" disabled selected>Choose your option</option>
+            <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+              {{typeContrat.libelle}}
+            </option>
+          </select>
+
+          <button class="btn btn-primary ml-2" type="submit">
+            <i class="fa fa-search"></i> Rechecher
+          </button>
+
+        </div>
+
+
+      </form>
+
+
+      <div *ngIf="listDemandeTraiter.length === 0">
+        <h3 class="title text-center text-primary">Aucune demande traitée</h3>
+      </div>
+
+      <div class="table-responsive table-striped" *ngIf="listDemandeTraiter.length !== 0">
+
+        <button (click)="export()" type="button" class="btn btn-success bg-dark col-sm-3 pull-right">
+          <i class="fa fa-file-excel-o" style="font-size:20px;color:white"></i>
+          Export
+        </button>
+
+        <table class="table">
+          <thead class="text-primary text-center">
+          <th>Démandeur
+          </th>
+
+          <th>Email
+          </th>
+
+          <th>Division
+          </th>
+
+          <th>Type Contrat
+          </th>
+          <th>Raison Social
+          </th>
+
+          <th>Objet Contrat
+          </th>
+
+          <th>Entrée En Vigueur
+          </th>
+
+          <th>Date d'expiration
+          </th>
+
+          <th>Delais de traitement
+          </th>
+
+          <th>Options
+          </th>
+
+          </thead>
+
+          <tbody class="text-center">
+
+          <tr *ngFor="let d of listDemandeTraiter | paginate: { itemsPerPage: 10, currentPage: p }">
+
+            <td class="text-center">
+              {{d.user.name}}
+            </td>
+
+            <td class="text-center">
+              {{d.user.email}}
+            </td>
+
+            <td  class="text-center">
+              {{d.user.division.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.typeContrat.libelle}}
+            </td>
+
+            <td class="text-center">
+              {{d.raisonSocial}}
+            </td>
+
+            <td class="text-center">
+              {{d.objetContrat}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateEntreeEnVigueur | date}}
+            </td>
+
+            <td class="text-center">
+              {{d.dateFinContrat | date}}
+            </td>
+
+            <td class="text-center">
+              {{days_between(d.datePrisEnchargeDemande, d.dateUploadFirstContrat)}} Jours
+            </td>
+
+            <td class="text-center">
+
+
+              <button *ngIf="d.statutHasContrat" type="button" rel="tooltip" title="Voir le contrat" class="btn btn-warning btn-icon btn-sm"
+                      (click)="getContratByDemande(d.id)">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" rel="tooltip" title="Afficher les details" class="btn btn-primary btn-icon btn-sm"
+                      (click)="getDemandeInfos(d); onChangeOption('detailDemandeValider')">
+                <i class="fa fa-file"></i>
+              </button>
+
+            </td>
+          </tr>
+
+          <tr class="text class=">
+            <td colspan = 12>
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!--................................................Demandes Traiter.........................................-->
+
+
+</div>

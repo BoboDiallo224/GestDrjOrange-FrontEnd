@@ -1,0 +1,130 @@
+
+<nav class="navbar navbar-expand-lg navbar-absolute bg-primary fixed-top">
+    <div class="container-fluid">
+
+      <div class="navbar-wrapper">
+
+            <div class="navbar-toggle">
+                <button type="button" class="navbar-toggler" (click)="sidebarToggle()">
+                    <span class="navbar-toggler-bar bar1"></span>
+                    <span class="navbar-toggler-bar bar2"></span>
+                    <span class="navbar-toggler-bar bar3"></span>
+                </button>
+            </div>
+           <!-- <a class="navbar-brand" href="#pablo">{{getTitle()}}</a>-->
+        </div>
+
+        <button class="navbar-toggler" type="button" (click)="collapse()"
+          [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
+          <span class="navbar-toggler-bar navbar-kebab"></span>
+          <span class="navbar-toggler-bar navbar-kebab"></span>
+          <span class="navbar-toggler-bar navbar-kebab"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="collapseExample" [ngbCollapse]="isCollapsed">
+
+          <ul class="navbar-nav">
+           <!-- <li class="nav-item">
+              <a class="nav-link" href="#pablo">
+                <i class="now-ui-icons media-2_sound-wave"></i>
+                <p>
+                  <span class="d-lg-none d-md-block">Stats</span>
+                </p>
+              </a>
+            </li>-->
+           <!-- <li class="nav-item" ngbDropdown>
+              <a class="nav-link" id="dropdownBasic1" ngbDropdownToggle>
+                <i class="now-ui-icons location_world"></i>
+                <p>
+                  <span class="d-lg-none d-md-block">Some Actions</span>
+                </p>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+              </div>
+            </li>-->
+            <li class="nav-item">
+              <a class="nav-link" title="Se deconnecter" (click)="logOut()">
+                <i class="fa fa-sign-out"></i>
+                <p>
+                  <span class="d-lg-none d-md-block">Account</span>
+                </p>
+              </a>
+            </li>
+
+            <li class="nav-item" *ngIf="role === 'ROLE_VALIDATEUR'">
+              <a class="nav-link" title="Signature" (click)="openModal(ajoutSignature)">
+                <!--<img src="./assets/img/file-signature-solid.svg"/>-->
+                <img src="./assets/img/email-signature-icon-11.jpg" width="20" height="20"/>
+                <!--<p>
+                  <span class="d-lg-none d-md-block">Account</span>
+                </p>-->
+              </a>
+            </li>
+          </ul>
+        </div>
+
+    </div>
+</nav>
+
+<ng-template #ajoutSignature>
+
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Ajouter une signature</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+
+   <!-- <h3 class="mb-0"><label for="contentImage">Image</label></h3>
+    <input type="file" accept="image/*" id="contentImage" class="form-control" name="contentImage" [(ngModel)]="selectedFiles"
+           (change)="onSelectFileOut($event)" />
+
+    <div *ngIf="currentFileUpload" class="progress">
+      <div class="progress-bar progress-bar-primary progress-bar-striped"
+           role="progressbar" attr.aria-valuenow="{{ progress.percentage }}"
+           aria-valuemin="0" aria-valuemax="100" [ngStyle]="{width: progress.percentage+'%'}">
+        {{ progress.percentage }}%
+      </div>
+    </div>-->
+
+
+    <div class="row">
+
+      <div class="col-md-12">
+        <label *ngIf="user === null" style="font-size: 25px; cursor: pointer" class="text-primary text_bold" title="Ajouter une signature" for="contentImage2">
+          <i class="fa fa-plus"></i>
+        </label>
+        <label *ngIf="user !== null" style="font-size: 25px; cursor: pointer" class="text-primary text_bold" title="Modifier ma signature" for="contentImage2">
+          <i class="fa fa-pencil"></i>
+        </label>
+        <input hidden type="file" accept="image/*" id="contentImage2" class="form-control"
+               (change)="onSelectFileOut($event)" name="contentImage" [(ngModel)]="selectedFiles"/>
+
+        <div *ngIf="currentFileUpload" class="progress">
+          <div class="progress-bar progress-bar-primary progress-bar-striped"
+               role="progressbar" attr.aria-valuenow="{{ progress.percentage }}"
+               aria-valuemin="0" aria-valuemax="100" [ngStyle]="{width: progress.percentage+'%'}">
+            {{ progress.percentage }}%
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12" *ngIf="user != null">
+
+        <div class="img-wrapper text-center">
+          <!-- <img style="width: 120px; height: 100px; padding: 5px" [src]="ImgUrl" class="float-l text-center" alt="...">-->
+          <img [src]="ImgUrl " width="60%" height="60%" alt="Image" />
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</ng-template>

@@ -1,0 +1,11 @@
+input {
+  font-size: 15px;
+}
+
+.my-pagination /deep/ .ngx-pagination .current {
+  background-color: #f96332 !important;
+}
+
+/*.pdfpage {border:1px; border-style:solid; padding:20px; width:400px; float:left}
+button {margin:10px; padding:15px 10px; background-color:#1010DA; color:#FFF;}
+br {clear:both;}*/

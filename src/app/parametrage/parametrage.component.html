@@ -1,0 +1,575 @@
+<div class="main-content mt-5 pt-5">
+
+    <nav class="navbar navbar-expand-lg bg-dark">
+      <!-- Collapse button -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
+              aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Collapsible content -->
+      <div class="collapse navbar-collapse" id="basicExampleNav">
+
+        <!-- Links -->
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item "><!--active-->
+            <a class="nav-link" (click)="onChangeOption('user')">Utilisateur
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" (click)="onChangeOption('typeContrat'); isUpdate = false">Type Contrat</a>
+          </li>
+
+        </ul>
+        <!-- Links -->
+
+        <form class="form-inline">
+          <div class="md-form my-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          </div>
+        </form>
+      </div>
+      <!-- Collapsible content -->
+    </nav>
+
+
+  <div class="row p-2" *ngIf="displayOption === 'user'">
+
+    <!--.........................................Div FORMULAIRE.......................................................-->
+
+    <ng-template #ajoutUtilisateur>
+
+      <ngx-loading [show]="loading" [config]="{backdropBorderRadius:'3px'}"></ngx-loading>
+
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Ajouter un nouveau utilisateur</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <form #f="ngForm" (ngSubmit)="addNewUser(f.value)">
+
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="text-primary font-weight-bold ml-1">Nom et prenom de l'utilisateur</label>
+                <input type="text" class="form-control" placeholder="Username" ngModel name="name" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="text-primary font-weight-bold ml-1" for="login">Login</label>
+                <input id="login" type="text" class="form-control" placeholder="Login(Ex: 110000diallo)" ngModel name="username" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="text-primary font-weight-bold ml-1" for="email">Email</label>
+                <input id="email" type="email" class="form-control" placeholder="Email" ngModel name="email" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="text-primary font-weight-bold ml-1" for="direction">Direction</label>
+                <input  id="direction" type="text" class="form-control" placeholder="Direction" ngModel name="direction" required>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-4">
+              <label class="text-primary font-weight-bold ml-1">Sélectionner un rôle</label>
+              <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                      (change)="onChangedSelectedRole(roles)" [(ngModel)]="roles" name="roles" required>
+                <!--<option value="" disabled selected>Choose your option</option>-->
+                <option value="ROLE_DEMANDEUR" [ngValue]="ROLE_DEMANDEUR">ROLE_DEMANDEUR</option>
+                <option value="ROLE_ADMIN" [ngValue] selected>ROLE_ADMIN</option>
+                <option value="ROLE_VALIDATEUR" [ngValue]="ROLE_VALIDATEUR">ROLE_VALIDATEUR</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+
+              <label class="text-primary font-weight-bold ml-1">Sélectioner une division</label>
+              <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                      (change)="onChangeDivision(division)" [(ngModel)]="division" name="division" required>
+                <option value="" disabled selected>Choose your option</option>
+                <option *ngFor="let division of listDivision" [ngValue]="division">
+                  {{division.libelle}}
+                </option>
+              </select>
+
+            </div>
+
+            <div class="col-md-2 mt-1">
+              <p></p>
+              <button class="btn btn-primary" type="button" title="Ajouter une nouvelle division" (click)="openModal2(ajoutDivision)">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-primary btn-block pull-right" type="submit" [disabled]="f.invalid">
+              <i class="fa fa-check"></i>
+              Valider</button>
+            <button class="btn btn-danger btn-block" type="button" (click)="modalRef.hide()">
+              <i class="fa fa-remove"></i>
+              Fermer</button>
+          </div>
+
+        </form>
+
+      </div>
+
+    </ng-template>
+
+    <ng-template #ajoutDivision>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Ajouter une nouvelle division</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef2.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <form #f="ngForm" (ngSubmit)="addNewDivision(f.value)">
+
+          <label class="text-primary font-weight-bold ml-1" for="libelle">Direction</label>
+          <input  id="libelle" type="text" class="form-control" placeholder="libelle" ngModel name="libelle" required>
+
+          <button *ngIf="modalRef" type="submit" class="btn btn-primary" (click)=" openModal(ajoutUtilisateur)" [disabled] = "!f.valid">
+            Valider
+          </button>
+
+          <button *ngIf="modalRef" type="button" class="btn btn-danger" (click)="modalRef2.hide(); openModal(ajoutUtilisateur)">
+            Fermer</button>
+
+        </form>
+
+      </div>
+    </ng-template>
+
+    <!--...................................Close Form.................................................................-->
+
+    <button class="btn btn-primary" title="Ajouter un nouveau utilisateur" (click)="openModal(ajoutUtilisateur)">
+      <i class="fa fa-plus"></i>
+    </button>
+    <!--.........................................Div Utilisateur.......................................................-->
+    <div class="col-md-12">
+
+      <div class="row">
+
+        <!--.........................................Div list Utilisateur.......................................................-->
+
+        <div class="card card-user" [ngClass]="{'col-md-6':isAttribution == true}">
+
+          <div class="card-header">
+            <h4 class="card-title text-center"> Liste des Utilisateurs</h4>
+          </div>
+
+          <div class="card-body">
+
+            <div class="table-responsive table-striped">
+              <table class="table">
+                <thead class="text-primary text-center">
+                <th>
+                  Username
+                </th>
+                <th>
+                  Login
+                </th>
+                <th>
+                  Email
+                </th>
+                <th>
+                  Direction
+                </th>
+                <th>
+                  Division
+                </th>
+                <th>
+                  Type Contrat
+                </th>
+                <th>
+                  Rôle
+                </th>
+                <th>
+                  Options
+                </th>
+
+                </thead>
+
+                <tbody class="text-center">
+                <tr *ngFor="let u of listUsers | paginate: { itemsPerPage: 5, currentPage: p }">
+                  <td class="table-success">
+                    {{u.name}}
+                  </td>
+                  <td>
+                    {{u.username}}
+                  </td>
+                  <td class="text-center">
+                    {{u.email}}
+                  </td>
+
+                  <td class="text-center">
+                    {{u.direction}}
+                  </td>
+
+                  <td class="text-center">
+                    {{u.division.libelle}}
+                  </td>
+
+                  <td *ngIf="u.typeContrat === null" class="text-center">
+                    Non Attribué
+                  </td>
+
+                  <td *ngIf="u.typeContrat !== null" class="text-center">
+                    {{u.typeContrat.libelle}}
+                  </td>
+
+                  <td class="text-center">
+                    {{u.roles}}
+                  </td>
+
+                  <td class="text-center">
+                    <button *ngIf="u.typeContrat === null" type="button" rel="tooltip" title="Attribuer à la gestion d'un Type de Contrat" class="btn btn-primary btn-icon btn-sm"
+                            (click)="getUserInfos(u); openModal2(isAttribution)">
+                      <i class="fa fa-user"></i> <!--fa-file-->
+                    </button>
+
+                    <button *ngIf="u.typeContrat !== null" type="button" rel="tooltip" title="Retirer l'Attribution à la gestion du Type de Contrat" class="btn btn-primary btn-icon btn-sm"
+                            (click)="getUserInfos(u); openModal2(isRetireAttribution)">
+                      <i class="fa fa-user"></i> <!--fa-file-->
+                    </button>
+
+                    <button type="button" rel="tooltip" title="Changer de role" class="btn btn-warning btn-icon btn-sm"
+                            (click)="getUserInfos(u); openModal2(isChangingRole)">
+                      <i class="fa fa-pencil"></i> <!--fa-file-->
+                    </button>
+                  </td>
+
+                </tr>
+                </tbody>
+
+              </table>
+            </div>
+
+            <div class="text-center text-danger">
+              <pagination-controls class="my-pagination" (pageChange)="p = $event" previousLabel="Precedent" nextLabel="Suivant"></pagination-controls>
+            </div>
+
+          </div>
+
+        </div>
+        <!--.........................................Fermeture Div list Utilisateur.......................................................-->
+
+
+        <!-- ...................................Attribution........................-->
+
+        <ng-template #isAttribution>
+
+          <div class="modal-header">
+            <h4 class="modal-title pull-left">Attribuer à cet utilisateur la gestion d'un type de contrat</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef2.hide()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+
+            <form   #f="ngForm" (ngSubmit)="addAttributionToUser()" >
+
+              <div class="row">
+
+                <div class="col-sm-12">
+                  <label class="text-primary font-weight-bold ml-1">Selectionner un Type Contrat</label>
+                  <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                          (change)="onChangeType(typeContrat)" [(ngModel)]="typeContrat" name="typeContrat">
+                    <option value="" disabled selected>Choose your option</option>
+                    <option *ngFor="let typeContrat of listTypeContrat" [ngValue]="typeContrat">
+                      {{typeContrat.libelle}}
+                    </option>
+
+                  </select>
+
+                </div>
+              </div>
+
+              <div class="row">
+
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="text-primary font-weight-bold ml-1">Nom D'utilisateur</label>
+                    <input type="text" class="form-control text-primary" style="font-size: 18px;" [(ngModel)]="user.name" disabled  name="name" placeholder="Username">
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-primary btn-block btn-round">Valider</button>
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+        </ng-template>
+
+        <!-- ...................................Retire Attribution........................--> <!-- ...................................Attribution........................-->
+
+        <ng-template #isRetireAttribution>
+
+          <div class="modal-header">
+            <h4 class="modal-title pull-left">Rétirer à cet utilisateur la gestion du type de contrat</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef2.hide()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+
+              <div class="row">
+
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="text-primary font-weight-bold ml-1">Nom D'utilisateur</label>
+                    <input type="text" class="form-control text-primary" style="font-size: 18px;" [(ngModel)]="user.name" disabled  name="name" placeholder="Username">
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="submit" (click)="retireAttributionToUser()" class="btn btn-primary btn-block btn-round">Valider</button>
+                </div>
+              </div>
+
+
+          </div>
+        </ng-template>
+
+        <!-- ...................................Retire Attribution........................-->
+
+
+        <!-- ...................................Changing Role........................-->
+
+        <ng-template #isChangingRole>
+
+          <div class="modal-header">
+            <h4 class="modal-title pull-left">Modification Role</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef2.hide()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+
+            <form   #f="ngForm" (ngSubmit)="updateUserRole()" >
+
+
+              <div class="row pr-2 pl-2">
+
+                <label class="text-primary font-weight-bold ml-1">Sélectionner un rôle</label>
+
+                <select class="form-control bg-dark text-white h6 mdb-select md-form"
+                        (change)="onChangedSelectedRole()" [(ngModel)]="changeRoles" name="roles" required>
+                 <!-- <option value="" disabled selected>Choose your option</option>-->
+                  <option value="ROLE_DEMANDEUR" [ngValue]="ROLE_DEMANDEUR" selected>ROLE_DEMANDEUR</option>
+                  <option value="ROLE_ADMIN" [ngValue] = "ROLE_ADMIN">ROLE_ADMIN</option>
+                  <option value="ROLE_VALIDATEUR" [ngValue]="ROLE_VALIDATEUR">ROLE_VALIDATEUR</option>
+                  <option value="ROLE_GESTIONNAIRE" [ngValue]="ROLE_GESTIONNAIRE">ROLE_GESTIONNAIRE</option>
+
+                </select>
+
+              </div>
+
+
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-primary btn-block btn-round">Valider</button>
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+        </ng-template>
+
+        <!-- ...................................Changing Role........................-->
+
+      </div>
+
+    </div>
+    <!--.........................................FERMETURE Div TABLEAU.......................................................-->
+
+  </div>
+
+  <div class="row p-2" *ngIf="displayOption === 'typeContrat'">
+
+    <!--.........................................Div FORMULAIRE.......................................................-->
+    <div class="col-md-6">
+
+      <!--....................................Card Insert.................................................................-->
+      <div class="card" *ngIf="!isUpdate">
+
+        <div class="card-header">
+          <h5 class="title">Nouveau Type de Contrat</h5>
+        </div>
+
+        <div class="card-body">
+
+          <form #f ="ngForm" (ngSubmit)="addNewTypeContrat()">
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Libellé</label>
+                  <input type="text" class="form-control" [(ngModel)] = "typeContrat.libelle" name = "libelle" required placeholder="Libellé">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Delais de traitement</label>
+                  <input type="text"  class="form-control" [(ngModel)] = "typeContrat.delayOfTraitment" name = "delayOfTraitment" required  placeholder="Delais Traitement">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <button type="submit" class="btn btn-primary btn-block btn-round" [disabled]="!f.valid">Valider</button>
+              </div>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+      <!--....................................Card Insert.................................................................-->
+
+      <!--....................................Card Update.................................................................-->
+      <div class="card" *ngIf="isUpdate">
+        <button class="close mr-2" title="Fermer" (click)="closeTab()">X</button>
+        <div class="card-header">
+          <h5 class="title">Modification Type de Contrat</h5>
+        </div>
+
+        <div class="card-body">
+
+          <form #f ="ngForm" (ngSubmit)="updateTypeContrat()">
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1">Libellé</label>
+                  <input type="text" class="form-control" [(ngModel)] = "typeContrat.libelle" name = "libelle" required placeholder="Libellé">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="text-primary font-weight-bold ml-1" >Delais de traitement</label>
+                  <input type="text"  class="form-control" [(ngModel)] = "typeContrat.delayOfTraitment" name = "delayOfTraitment" required  placeholder="Delais Traitement">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <button type="submit" class="btn btn-primary btn-block btn-round" [disabled]="!f.valid">Modifier</button>
+              </div>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+      <!--....................................Card Update.................................................................-->
+
+
+    </div>
+    <!--.........................................FERMETURE Div FORMULAIRE.......................................................-->
+
+    <!--.........................................Div TABLEAU.......................................................-->
+    <div class="col-md-6">
+      <div class="card card-user">
+
+        <div class="card-header">
+          <h5 class="title"> Liste des Types de Contrat</h5>
+        </div>
+
+        <div class="card-body">
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead class=" text-primary text-center">
+              <th>
+                Libellé
+              </th>
+              <th>
+                Delais Traitement
+              </th>
+              <th>
+                Options
+              </th>
+              </thead>
+              <tbody>
+              <tr class="text-center" *ngFor="let c of listTypeContrat ">
+                <td>
+                   {{c.libelle}}
+                </td>
+
+                <td class="table-success">
+                  {{c.delayOfTraitment}} jour(s)
+                </td>
+
+                <td>
+                  <button type="button" title="Modifier" rel="tooltip" class="btn btn-info btn-icon btn-sm "
+                          (click)="isUpdate = true; typeContrat = c">
+                    <i class="fa fa-pencil"></i> <!--(click)=" typeContrat = c"-->
+                  </button>
+                </td>
+
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    <!--.........................................FERMETURE Div TABLEAU.......................................................-->
+
+  </div>
+
+</div>
+
+
+
+
